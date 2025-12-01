@@ -7,7 +7,7 @@
 * **José Vitor de Mattos Pinheiro**
 * **Jaime António Cá**
 * **Giovani Razzante**
-* **Theo**
+* **Theo Pereira do Santos**
 * **Jonathan Zoz**
 
 ---
