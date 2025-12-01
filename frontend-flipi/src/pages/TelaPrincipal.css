@@ -1,0 +1,393 @@
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+    from { transform: translateX(-50px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(50px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInTop {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideInBottom {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.09); }
+    100% { transform: scale(1); }
+}
+
+.container-tela-principal{
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.retangulo-um{
+    height: 90%;
+    width: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #eddbb3;
+    border-radius: 10px;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+.retangulo-dois{
+    height: 100%;
+    width: 96%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #c69877;
+    border-radius: 10px;
+    animation: slideInBottom 0.3s ease-in-out;
+}
+
+.retangulo-tres{
+    height: 100%;
+    width: 97%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color:#f8ebce;
+    border-radius: 10px;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+.div-espaco-vazio{
+    height: 100%;
+    width: 6%;
+    background-color: #fdfaf3;
+    animation: slideInLeft 0s ease-in-out;
+}
+
+.div-home-escrivaninha{
+    height: 33%;
+    width: 100%;
+    background-color: #fdfaf3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.btnss{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 30px;
+    margin-bottom: 25px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: 0.5s;
+    transform: scale(1.5);
+}
+
+.btnss:hover {
+    transform: scale(1.6);
+    transition: 0.5s;
+}
+
+.icons{
+    height: 35px;
+    width: 35px;
+    margin: 10%;
+    background-color: #fdfaf3;
+    animation: fadeIn 0.7s ease-in-out;
+}
+
+.div-livros-esquerda{
+    height: 100%;
+    width: 44%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: #fdfaf3;
+    margin-left: 4px;
+    animation: slideInLeft 0.3s ease-in-out;
+}
+
+.div-barra-de-pesquisa{
+    height: 15%;
+    width: 100%;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    background-color: #fdfaf3;
+    animation: slideInTop 0.5s ease-in-out;
+}
+
+.btn-pesquisar{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+    width: 40px;
+    margin: 0% 0% 0% 1%;
+    border-radius: 100%;
+    border: none;
+    cursor: pointer;
+    margin-left: -40px;
+    transition: 0.5s;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+.btn-pesquisar:hover {
+    transform: scale(1.1);
+    transition: 0.5s;
+}
+
+.icons-pesquisar{
+    height: 20px;
+    width: 20px;
+    background-color: #fdfaf3;
+    animation: fadeIn 1s ease-in-out;
+}
+
+.inpt-pesquisa{
+    height: 30px;
+    width: 250px;
+    border: solid #d7beb1;
+    border-radius: 10px;
+    padding-left: 20px;
+    padding-right: 35px;
+    color: #40454b;
+    font-family: "fonte-projeto";
+    font-size: 20px;
+    font-weight: 700;
+    transition: 0.8s;
+    animation: slideInLeft 0.5s ease-in-out;
+}
+
+.inpt-pesquisa:hover {
+    width: 260px;
+    transition: 0.8s;
+}
+            
+.inpt-pesquisa:focus{
+    outline-width: 0px;
+}
+
+.div-Fila-livros{
+    height: 35%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    background-color: #fdfaf3;
+    animation: fadeIn 0.7s ease-in-out;
+}
+
+.div-box-titulo{
+    height: 100%;
+    width: 25%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: #fdfaf3;
+    transition: 0.3s;
+    animation: slideInBottom 0.8s ease-in-out;
+}
+
+.btn-livro-home img {
+    height: 174px;
+    width: 120px;
+    object-fit: cover;
+    box-shadow: 0px 3px 6px rgba(87, 61, 47, 0.3);
+    animation: fadeIn 1s ease-in-out;
+}
+
+.box-placeholder {
+    height: 174px;
+    width: 120px;
+    background-color: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 3px 6px rgba(87, 61, 47, 0.3);
+    animation: fadeIn 1s ease-in-out;
+    border-radius: 4px;
+    font-size: 10px;
+}
+
+.box-placeholder::after {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    content: "📕COVER";
+    font-size: 40px;
+    color: #999;
+}
+
+.div-Fila-livros:hover .div-box-titulo{
+    filter: blur(5px);
+    opacity: 0.9;
+    transition: 0.3s;
+    margin-bottom: 10px;
+    background-color: #dfdcd9;
+}
+
+.div-Fila-livros .div-box-titulo:hover{
+    filter: none;
+    opacity: 1;
+    transition: 0.3s;
+    transform: translateY(-10px);
+}
+
+.titulos-livros{
+    text-align: center;
+    margin-top: 6px;
+    font-size: 14px;
+    transition: 0.3s;
+    animation: fadeIn 1.2s ease-in-out;
+}
+
+.div-contatos{
+    height: 15%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: #fdfaf3;
+    animation: slideInBottom 1s ease-in-out;
+}
+
+.div-divisao-um{
+    height: 3px;
+    width: 90%;
+    border-radius: 5px;
+    margin-top: 15px;
+    background-color: #d7beb1;
+    animation: slideInLeft 1.2s ease-in-out;
+}
+
+.div-divisao-dois{
+    height: 3px;
+    width: 70%;
+    border-radius: 5px;
+    margin-top: 8px;
+    background-color: #d7beb1; 
+    animation: slideInRight 1.2s ease-in-out;
+}
+
+.btn-contacts{
+    height: 30px;
+    width: 90px;
+    margin-top: 1%;
+    border: solid #d7beb1;
+    border-radius: 10px;
+    cursor: pointer;
+    color: #40454b;
+    font-family: "fonte-projeto";
+    font-size: 20px;
+    font-weight: 700;
+    transition: 0.8s;
+    animation: fadeIn 1.4s ease-in-out;
+}
+
+.btn-contacts:hover {
+    width: 100px;
+    font-size: 21px;
+    transition: 0.8s;
+    background-color: #f5ece0;
+}
+
+.div-livros-direita{
+    height: 100%;
+    width: 44%;
+    margin-left: 8px;
+    background-color: #fdfaf3;
+    animation: slideInRight 0.3s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.div-elementos{
+    height: 100%;
+    width: 6%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+    background-color: #fdfaf3;
+    margin-left: 4px;
+    animation: slideInRight 0s ease-in-out;
+}
+
+.div-next-page{
+    height: 15%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: #fdfaf3;
+    animation: fadeIn 0.9s ease-in-out;
+}
+
+.div-label-next-page{
+    height: 30%;
+    width: 100%;
+    display: flex;
+    justify-content: end;
+    animation: slideInRight 1.1s ease-in-out;
+}
+
+.btn-next-page{
+    height: 40px;
+    width: 160px;
+    margin-top: 1%;
+    border: solid #d7beb1;
+    text-align: center;
+    border-radius: 10px;
+    cursor: pointer;
+    color: #40454b;
+    font-family: "fonte-projeto";
+    font-size: 30px;
+    font-weight: 700;
+    margin-right: 10px;
+    transition: 0.8s;
+    animation: fadeIn 1.3s ease-in-out;
+}
+
+.btn-next-page:hover {
+    font-size: 31px;
+    transition: 0.8s;
+    background-color: #f5ece0;
+}
+
+.btn-livro-home{
+    border: none;
+    cursor: pointer;
+    transition: 0.5s;
+    animation: fadeIn 1.5s ease-in-out;
+    background: transparent;
+}
+
+.btn-livro-home:hover {
+    transform: scale(1.1);
+    transition: 0.5s;
+}
