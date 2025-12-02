@@ -522,46 +522,60 @@ async function obterOuCriarAutor(nome) {
     }
 }
 
-
 const mapeamentoGeneros = {
     // Ficção Científica
-    'science fiction': 'Ficção Científica','sci-fi': 'Ficção Científica','dystopian': 'Ficção Científica','utopian': 'Ficção Científica','space': 'Ficção Científica','future': 'Ficção Científica','cyberpunk': 'Ficção Científica','aliens': 'Ficção Científica','time travel': 'Ficção Científica',
+    'science fiction': 'Ficção Científica', 'sci-fi': 'Ficção Científica', 'dystopian': 'Ficção Científica', 
+    'utopian': 'Ficção Científica', 'space': 'Ficção Científica', 'future': 'Ficção Científica', 
+    'cyberpunk': 'Ficção Científica', 'aliens': 'Ficção Científica', 'time travel': 'Ficção Científica',
     
     // Thriller
-    'thriller': 'Thriller','thrillers': 'Thriller','suspense': 'Thriller','psychological thriller': 'Thriller','spy': 'Thriller','espionage': 'Thriller',
+    'thriller': 'Thriller', 'thrillers': 'Thriller', 'suspense': 'Thriller', 
+    'psychological thriller': 'Thriller', 'spy': 'Thriller', 'espionage': 'Thriller',
     
     // Fantasia
-    'fantasy': 'Fantasia','fantasy fiction': 'Fantasia','magic': 'Fantasia','magical realism': 'Fantasia','wizards': 'Fantasia','dragons': 'Fantasia','mythology': 'Fantasia','fairy tales': 'Fantasia','supernatural': 'Fantasia',
+    'fantasy': 'Fantasia', 'fantasy fiction': 'Fantasia', 'magic': 'Fantasia', 
+    'magical realism': 'Fantasia', 'wizards': 'Fantasia', 'dragons': 'Fantasia', 
+    'mythology': 'Fantasia', 'fairy tales': 'Fantasia', 'supernatural': 'Fantasia',
     
     // Comédia
-    'comedy': 'Comédia','humor': 'Comédia','humorous': 'Comédia','satire': 'Comédia','parody': 'Comédia','comic': 'Comédia','funny': 'Comédia',
+    'comedy': 'Comédia', 'humor': 'Comédia', 'humorous': 'Comédia', 'satire': 'Comédia', 
+    'parody': 'Comédia', 'comic': 'Comédia', 'funny': 'Comédia',
     
     // Biografia
-    'biography': 'Biografia','autobiography': 'Biografia','memoirs': 'Biografia','life stories': 'Biografia','biographical': 'Biografia',
+    'biography': 'Biografia', 'autobiography': 'Biografia', 'memoirs': 'Biografia', 
+    'life stories': 'Biografia', 'biographical': 'Biografia',
     
     // Crimes
-    'crime': 'Crimes','criminal': 'Crimes','detective': 'Crimes','mystery': 'Crimes','mystery fiction': 'Crimes','detective stories': 'Crimes','police': 'Crimes','murder': 'Crimes','investigation': 'Crimes','noir': 'Crimes',
+    'crime': 'Crimes', 'criminal': 'Crimes', 'detective': 'Crimes', 'mystery': 'Crimes', 
+    'mystery fiction': 'Crimes', 'detective stories': 'Crimes', 'police': 'Crimes', 
+    'murder': 'Crimes', 'investigation': 'Crimes', 'noir': 'Crimes',
     
     // Ação e Aventura
-    'action': 'Ação e Aventura','adventure': 'Ação e Aventura','action & adventure': 'Ação e Aventura','adventure stories': 'Ação e Aventura','expeditions': 'Ação e Aventura','survival': 'Ação e Aventura','quest': 'Ação e Aventura',
+    'action': 'Ação e Aventura', 'adventure': 'Ação e Aventura', 'action & adventure': 'Ação e Aventura', 
+    'adventure stories': 'Ação e Aventura', 'expeditions': 'Ação e Aventura', 'survival': 'Ação e Aventura', 'quest': 'Ação e Aventura',
     
     // Romance
-    'romance': 'Romance','love stories': 'Romance','romantic fiction': 'Romance','love': 'Romance','relationships': 'Romance','romantic': 'Romance',
+    'romance': 'Romance', 'love stories': 'Romance', 'romantic fiction': 'Romance', 
+    'love': 'Romance', 'relationships': 'Romance', 'romantic': 'Romance',
     
     // Terror
-    'horror': 'Terror','horror stories': 'Terror','ghost stories': 'Terror','ghosts': 'Terror','monsters': 'Terror','scary': 'Terror','fear': 'Terror','haunted': 'Terror',
+    'horror': 'Terror', 'horror stories': 'Terror', 'ghost stories': 'Terror', 
+    'ghosts': 'Terror', 'monsters': 'Terror', 'scary': 'Terror', 'fear': 'Terror', 'haunted': 'Terror',
     
     // Medieval
-    'medieval': 'Medieval','middle ages': 'Medieval','knights': 'Medieval','castles': 'Medieval','feudal': 'Medieval','chivalry': 'Medieval','crusades': 'Medieval',
+    'medieval': 'Medieval', 'middle ages': 'Medieval', 'knights': 'Medieval', 
+    'castles': 'Medieval', 'feudal': 'Medieval', 'chivalry': 'Medieval', 'crusades': 'Medieval',
     
     // Drama
-    'drama': 'Drama','dramatic': 'Drama','family': 'Drama','psychological': 'Drama','emotional': 'Drama','tragedy': 'Drama','tragic': 'Drama',
+    'drama': 'Drama', 'dramatic': 'Drama', 'family': 'Drama', 'psychological': 'Drama', 
+    'emotional': 'Drama', 'tragedy': 'Drama', 'tragic': 'Drama',
     
-    // Outros mapeamentos úteis
-    'fiction': 'Drama','novels': 'Drama','literature': 'Drama','historical fiction': 'Medieval','war': 'Ação e Aventura','military': 'Ação e Aventura','western': 'Ação e Aventura','pirates': 'Ação e Aventura'
+    // Outros
+    // IMPORTANTE: Mudei de 'historical fiction' para 'Ficção' para evitar confusão,
+    // mas a lógica abaixo funcionará independente do valor aqui.
+    'fiction': 'Ficção' 
 };
 
-// Função para mapear assuntos da OpenLibrary para gêneros tradicionais
 function mapearGenerosLiterarios(assuntosOpenLibrary) {
     const generosEncontrados = new Set();
     
@@ -571,64 +585,53 @@ function mapearGenerosLiterarios(assuntosOpenLibrary) {
     
     assuntosOpenLibrary.forEach(assunto => {
         try {
-            // Extrai o texto do assunto (pode ser string ou objeto)
             let assuntoTexto;
             if (typeof assunto === 'string') {
                 assuntoTexto = assunto;
             } else if (typeof assunto === 'object' && assunto !== null) {
-                // Se for objeto, tenta extrair propriedades comuns
                 assuntoTexto = assunto.name || assunto.title || assunto.subject || assunto.toString();
             } else {
-                // Se não conseguir extrair texto, pula este item
                 return;
             }
             
-            // Normaliza o assunto para minúsculas para comparação
             const assuntoNormalizado = assuntoTexto.toLowerCase().trim();
             
-            // Verifica correspondência exata
+            // 1. Verifica correspondência exata (Prioridade Máxima)
             if (mapeamentoGeneros[assuntoNormalizado]) {
                 generosEncontrados.add(mapeamentoGeneros[assuntoNormalizado]);
-            } else {
-                // Verifica se o assunto contém alguma palavra-chave dos gêneros
-                Object.keys(mapeamentoGeneros).forEach(chave => {
-                    if (assuntoNormalizado.includes(chave) || chave.includes(assuntoNormalizado)) {
-                        generosEncontrados.add(mapeamentoGeneros[chave]);
+                return; 
+            } 
+
+            // 2. Loop de verificação parcial com LÓGICA DE EXCLUSÃO
+            Object.keys(mapeamentoGeneros).forEach(chave => {
+                
+                // === AQUI ESTÁ A LÓGICA NOVA ===
+                // Se a chave for genérica ('fiction'), verificamos se o assunto
+                // já é algo mais específico ('science', 'fan', etc).
+                if (chave === 'fiction') {
+                    // Lista de palavras que, se estiverem presentes, PROÍBEM a chave 'fiction' de ser ativada
+                    const excecoes = ['science', 'sci-fi', 'fantasy', 'crime', 'thriller', 'mystery'];
+                    
+                    // Se o assunto contiver qualquer uma dessas palavras específicas,
+                    // nós pulamos (return) e NÃO adicionamos a ficção genérica.
+                    const ehEspecifico = excecoes.some(exc => assuntoNormalizado.includes(exc));
+                    if (ehEspecifico) {
+                        return;
                     }
-                });
-            }
+                }
+                // =================================
+
+                if (assuntoNormalizado.includes(chave)) {
+                    generosEncontrados.add(mapeamentoGeneros[chave]);
+                }
+            });
+            
         } catch (error) {
             console.log('Erro ao processar assunto:', assunto, error.message);
-            // Continua processando os outros assuntos
         }
     });
     
     return Array.from(generosEncontrados);
-}
-
-// Função modificada para obter ou criar um gênero (apenas gêneros mapeados)
-async function obterOuCriarGenero(nome) {
-    if (!nome) return null;
-    
-    const client = await pool.connect();
-    try {
-        // Verifica se o gênero já existe
-        let result = await client.query('SELECT genero_id FROM genero WHERE genero_nome = $1', [nome]);
-        
-        if (result.rows.length > 0) {
-            return result.rows[0].genero_id;
-        }
-        
-        // Se não existir, cria um novo gênero
-        result = await client.query(
-            'INSERT INTO genero (genero_nome) VALUES ($1) RETURNING genero_id',
-            [nome]
-        );
-        
-        return result.rows[0].genero_id;
-    } finally {
-        client.release();
-    }
 }
 
 async function obterOuCriarEditoraComClient(client, nome) {
@@ -1007,26 +1010,32 @@ app.post('/livros/recomendacao-inteligente', async (req, res) => {
     console.log(`🔍 [RECOMENDACAO] Solicitada para User ID: ${usuario_id}`);
 
     try {
-        // 1. Tenta descobrir o perfil do usuário (O que ele deu nota alta)
+        // 1. Tenta descobrir o perfil do usuário (O que ele deu nota alta - 4 ou 5)
+        // ADICIONEI: Busca também a EDITORA (l.editora_id)
         const queryFavoritos = `
-            SELECT la.autor_id, lg.genero_id
+            SELECT la.autor_id, lg.genero_id, l.editora_id
             FROM resenha r
+            LEFT JOIN livro l ON r.livro_isbn = l.livro_isbn
             LEFT JOIN livro_autor la ON r.livro_isbn = la.livro_isbn
             LEFT JOIN livro_genero lg ON r.livro_isbn = lg.livro_isbn
             WHERE r.usuario_id = $1 AND r.resenha_nota >= 4
         `;
         const favoritos = await pool.query(queryFavoritos, [usuario_id]);
 
-        const autoresIds = favoritos.rows.map(row => row.autor_id).filter(id => id != null);
-        const generosIds = favoritos.rows.map(row => row.genero_id).filter(id => id != null);
+        // Filtra nulls e remove duplicatas
+        const autoresIds = [...new Set(favoritos.rows.map(row => row.autor_id).filter(id => id != null))];
+        const generosIds = [...new Set(favoritos.rows.map(row => row.genero_id).filter(id => id != null))];
+        const editorasIds = [...new Set(favoritos.rows.map(row => row.editora_id).filter(id => id != null))];
 
-        console.log(`   - Perfil: ${autoresIds.length} Autores e ${generosIds.length} Gêneros favoritos.`);
+        console.log("📊 [PERFIL ENCONTRADO]:");
+        console.log(`   - Autores IDs: ${autoresIds}`);
+        console.log(`   - Gêneros IDs: ${generosIds}`);
+        console.log(`   - Editoras IDs: ${editorasIds}`);
 
-        // 2. SE NÃO TEM PERFIL (CONTA NOVA), RETORNA POPULARES IMEDIATAMENTE
-        if (autoresIds.length === 0 && generosIds.length === 0) {
-            console.log("   -> Conta nova/Sem dados. Buscando Populares...");
+        // 2. SE NÃO TEM DADOS SUFICIENTES (CONTA NOVA OU DADOS INCOMPLETOS), RETORNA POPULARES
+        if (autoresIds.length === 0 && generosIds.length === 0 && editorasIds.length === 0) {
+            console.log("⚠️ -> Perfil vazio (Livro sem metadados ou usuário novo). Retornando Populares...");
             
-            // Query segura com todos os campos no Group By
             const populares = await pool.query(`
                 SELECT l.livro_isbn, l.livro_titulo, l.livro_capa, l.livro_ano, l.livro_sinopse,
                        COALESCE(AVG(r.resenha_nota), 0) as media_nota
@@ -1037,35 +1046,52 @@ app.post('/livros/recomendacao-inteligente', async (req, res) => {
                 LIMIT 20
             `);
             
-            console.log(`   -> Retornando ${populares.rows.length} livros populares.`);
             return res.json({ tipo: 'populares', dados: populares.rows });
         }
 
-        // 3. SE TEM PERFIL, BUSCA PERSONALIZADOS
-        const queryRecomendacao = `
-            SELECT DISTINCT l.livro_isbn, l.livro_titulo, l.livro_capa, l.livro_ano, l.livro_sinopse,
-                   COALESCE(AVG(r.resenha_nota), 0) as media_nota
-            FROM livro l
-            LEFT JOIN livro_autor la ON l.livro_isbn = la.livro_isbn
-            LEFT JOIN livro_genero lg ON l.livro_isbn = lg.livro_isbn
-            LEFT JOIN resenha r ON l.livro_isbn = r.livro_isbn
-            WHERE (
-                (CARDINALITY($1::int[]) > 0 AND la.autor_id = ANY($1::int[])) 
-                OR 
-                (CARDINALITY($2::int[]) > 0 AND lg.genero_id = ANY($2::int[]))
-            )
-            AND l.livro_isbn NOT IN (SELECT livro_isbn FROM resenha WHERE usuario_id = $3)
-            GROUP BY l.livro_isbn, l.livro_titulo, l.livro_capa, l.livro_ano, l.livro_sinopse
-            ORDER BY media_nota DESC
-            LIMIT 20;
-        `;
+        // 3. BUSCA PERSONALIZADA MELHORADA (Autor > Editora > Gênero)
+        // Adicionei peso para a ordenação: Mesma Autor/Editora aparece antes de apenas Mesmo Gênero
+       // ... dentro da rota /livros/recomendacao-inteligente
 
-        const recomendados = await pool.query(queryRecomendacao, [autoresIds, generosIds, usuario_id]);
+// 3. BUSCA PERSONALIZADA CORRIGIDA (Remove Duplicatas)
+const queryRecomendacao = `
+    SELECT l.livro_isbn, l.livro_titulo, l.livro_capa, l.livro_ano, l.livro_sinopse,
+           COALESCE(AVG(r.resenha_nota), 0) as media_nota,
+           -- USA MAX() PARA PEGAR A PONTUAÇÃO MÁXIMA SEM CRIAR NOVAS LINHAS
+           (
+               COALESCE(MAX(CASE WHEN la.autor_id = ANY($1::int[]) THEN 3 ELSE 0 END), 0) +
+               COALESCE(MAX(CASE WHEN l.editora_id = ANY($3::int[]) THEN 2 ELSE 0 END), 0) +
+               COALESCE(MAX(CASE WHEN lg.genero_id = ANY($2::int[]) THEN 1 ELSE 0 END), 0)
+           ) as relevancia
+    FROM livro l
+    LEFT JOIN livro_autor la ON l.livro_isbn = la.livro_isbn
+    LEFT JOIN livro_genero lg ON l.livro_isbn = lg.livro_isbn
+    LEFT JOIN resenha r ON l.livro_isbn = r.livro_isbn
+    WHERE (
+        (CARDINALITY($1::int[]) > 0 AND la.autor_id = ANY($1::int[])) 
+        OR 
+        (CARDINALITY($2::int[]) > 0 AND lg.genero_id = ANY($2::int[]))
+        OR
+        (CARDINALITY($3::int[]) > 0 AND l.editora_id = ANY($3::int[]))
+    )
+    AND l.livro_isbn NOT IN (SELECT livro_isbn FROM resenha WHERE usuario_id = $4)
+    
+    -- O SEGREDO ESTÁ AQUI: AGRUPAR APENAS PELAS COLUNAS DO LIVRO
+    GROUP BY l.livro_isbn, l.livro_titulo, l.livro_capa, l.livro_ano, l.livro_sinopse
+    
+    ORDER BY relevancia DESC, media_nota DESC
+    LIMIT 20;
+`;
+
+// ... resto do código (execução da query) igual
+
+        const recomendados = await pool.query(queryRecomendacao, [autoresIds, generosIds, editorasIds, usuario_id]);
         
-        // Se não achou personalizados (ex: já leu tudo), fallback para populares
+        console.log(`✅ -> Encontradas ${recomendados.rows.length} recomendações personalizadas.`);
+
         if (recomendados.rows.length === 0) {
             console.log("   -> Personalizados esgotados. Fallback para Populares.");
-            // Copia a mesma query de populares acima
+            // Fallback para populares... (mesma query de cima)
             const popularesFallback = await pool.query(`
                 SELECT l.livro_isbn, l.livro_titulo, l.livro_capa, l.livro_ano, l.livro_sinopse,
                        COALESCE(AVG(r.resenha_nota), 0) as media_nota
