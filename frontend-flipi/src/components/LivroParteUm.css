@@ -320,21 +320,35 @@
     width: 100%;
     background-color: #c89b7a;
    }
-    .botao-resenha{
+/* Botão de Expandir Resenhas */
+.botao-resenha {
+    background-color: #c85b34; /* Laranja do projeto */
+    color: #fdfaf3;            /* Texto claro */
+    border: none;
+    font-size: 2.3rem;
+    font-family: 'fonte-projeto', sans-serif;
+    font-weight: 700;
+    padding: 10px 25px;
+    border-radius: 20px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
 
-        height: 82px;
-        width: 200px;
-        border: none;
-        background-color: #c85b34;
-        color: #fff;
-        
-        font-family: "fonte-projeto";
-        font-size: 50px;
-        font-style: italic;
-        font-weight: bold;
-        border-top-left-radius: 5px;
-        border-bottom-left-radius: 5px;
-    }
+.botao-resenha:hover {
+    background-color: #a0401d; /* Um tom mais escuro ao passar o mouse */
+    transform: scale(1.05);    /* Leve aumento */
+}
+
+/* Centraliza o botão na div pai */
+.parte-baixo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-top: 10px;
+}
     .botao-icone{
         height: 76%;
         width: 6%;

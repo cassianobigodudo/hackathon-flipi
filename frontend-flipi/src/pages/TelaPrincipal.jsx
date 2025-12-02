@@ -1,36 +1,62 @@
 import React, { useEffect, useState, useContext } from 'react'
-import './TelaPrincipal.css' // Vamos usar o CSS padronizado abaixo
+import './TelaPrincipal.css' 
 import { useNavigate } from "react-router-dom"
 import { GlobalContext } from '../contexts/GlobalContext'
 import NavbarRealOficial from '../components/NavbarRealOficial'
+import BarraPesquisa from '../components/BarraPesquisa'
+import Filtro from '../components/Filtro'
 import axios from 'axios'
 
 function TelaPrincipal() {
-    const { dadosUsuarioLogado } = useContext(GlobalContext)
-    const [livrosPopulares, setLivrosPopulares] = useState([])
-    const navigate = useNavigate()
+    
+    // ESTADOS
+    const [paginaAtual, setPaginaAtual] = useState(0); // Começa na página 0
+    const [livrosPopulares, setLivrosPopulares] = useState([]);
+    const { dadosUsuarioLogado } = useContext(GlobalContext);
+    const navigate = useNavigate();
 
-    // 1. Busca os livros populares ao carregar a página
+    // BUSCAR DADOS
     useEffect(() => {
         const buscarPopulares = async () => {
             try {
-                // Chama a rota que criamos no backend ordenando por nota
-                const response = await axios.get('http://localhost:3000/livros/populares')
-                setLivrosPopulares(response.data)
+                // Traz 60 livros para permitir paginação
+                const response = await axios.get('http://localhost:3000/livros/populares');
+                setLivrosPopulares(response.data);
             } catch (error) {
-                console.error("Erro ao buscar livros populares:", error)
+                console.error("Erro ao carregar populares:", error);
             }
-        }
-        buscarPopulares()
-    }, [])
+        };
+        buscarPopulares();
+    }, []);
 
-    // 2. Divide os livros entre página Esquerda e Direita
-    // Vamos supor que cabem 6 ou 8 livros por página. Ajuste o slice conforme o tamanho da sua tela.
-    const livrosEsquerda = livrosPopulares.slice(0, 10) 
-    const livrosDireita = livrosPopulares.slice(10, 20)
+    // --- LÓGICA DE PAGINAÇÃO (FRONTEND) ---
+    const LIVROS_POR_PAGINA = 12; // Total visível (5 esq + 5 dir)
+    const METADE = 6; // Divisão do livro
 
-    // 3. Função para renderizar cada card (O .map vai usar isso)
-    const renderCardLivro = (livro) => (
+    // 1. Calcular índices baseados na página atual
+    const indiceInicial = paginaAtual * LIVROS_POR_PAGINA;
+    const indiceFinal = indiceInicial + LIVROS_POR_PAGINA;
+
+    // 2. Fatiar o array principal
+    const livrosDestaPagina = livrosPopulares.slice(indiceInicial, indiceFinal);
+
+    // 3. Dividir entre as folhas
+    const livrosEsquerda = livrosDestaPagina.slice(0, METADE);
+    const livrosDireita = livrosDestaPagina.slice(METADE, LIVROS_POR_PAGINA);
+
+    // 4. Funções de Controle
+    const totalPaginas = Math.ceil(livrosPopulares.length / LIVROS_POR_PAGINA);
+    
+    const proximaPagina = () => {
+        if (paginaAtual < totalPaginas - 1) setPaginaAtual(paginaAtual + 1);
+    };
+
+    const paginaAnterior = () => {
+        if (paginaAtual > 0) setPaginaAtual(paginaAtual - 1);
+    };
+
+    // --- RENDERIZAÇÃO DO CARD (Reutilizável) ---
+    const renderCard = (livro) => (
         <div className="card-livro-home" key={livro.livro_isbn}>
             <button 
                 className="btn-capa-livro" 
@@ -43,78 +69,68 @@ function TelaPrincipal() {
                 )}
             </button>
             <p className="titulo-livro-home">
-                {livro.livro_titulo.length > 25 ? livro.livro_titulo.substring(0, 25) + '...' : livro.livro_titulo}
+                {livro.livro_titulo.length > 30 ? livro.livro_titulo.substring(0, 30) + '...' : livro.livro_titulo}
             </p>
             <div className="estrelas-home">
-                {'★'.repeat(Math.round(livro.media_nota || 0))} 
+                {'★'.repeat(Math.round(livro.media_nota || 0))}
                 <span style={{color: '#ccc'}}>{'★'.repeat(5 - Math.round(livro.media_nota || 0))}</span>
             </div>
         </div>
-    )
+    );
 
     return (
-        <div className='container-principal'>
-            {/* --- ESTRUTURA DO LIVRO (FUNDO) --- */}
+        <div className='container-pesquisa'> {/* Reutilizando classe CSS */}
             <div className="capa-fundo-livro-um">
                 <div className="capa-fundo-livro-dois">
                     <div className="capa-fundo-livro-tres">
                         
-                        {/* 1. NAVBAR LATERAL (Marcador de página) */}
                         <div className="navbar-container">
                             <NavbarRealOficial/>
                         </div>
 
-                        {/* 2. FOLHA ESQUERDA */}
+                        {/* --- FOLHA ESQUERDA --- */}
                         <div className="folha-esquerda">
-                            
-                            {/* Cabeçalho da Página Esquerda */}
-                            <div className="header-pagina">
-                                <h2 className="titulo-destaque">🔥 Mais Populares</h2>
-                                {/* Barra de Pesquisa "Fake" que leva para a tela de pesquisa real */}
-                                <div className="barra-pesquisa-home">
-                                    <input 
-                                        type="text" 
-                                        placeholder="Pesquise um livro..." 
-                                        onFocus={() => navigate('/telapesquisa')} // Ao clicar, vai pra pesquisa
-                                    />
-                                    <img src="/icons/big-search-len.png" alt="buscar" className="icon-search"/>
-                                </div>
-                            </div>
+                            {/* Passamos setPaginaAtual para a barra, caso queira resetar ao pesquisar */}
+                            <BarraPesquisa setPaginaAtual={setPaginaAtual}/>
 
-                            {/* --- MAP DOS LIVROS (LADO ESQUERDO) --- */}
-                            <div className="grid-livros">
+                            {/* GRID ESQUERDA */}
+                            <div className="grid-livros-conteudo">
                                 {livrosEsquerda.length > 0 ? (
-                                    livrosEsquerda.map((livro) => renderCardLivro(livro))
+                                    livrosEsquerda.map(renderCard)
                                 ) : (
-                                    <p>Carregando catálogo...</p>
+                                    <p className="aviso-carregando">Carregando estante...</p>
                                 )}
                             </div>
-
-                            {/* Botão de Recomendação (Destaque) */}
-                            {dadosUsuarioLogado && (
-                                <button className="btn-recomendacao-float" onClick={() => navigate('/recomendacoes')}>
-                                    Ver recomendações para mim ➜
-                                </button>
-                            )}
-                        </div>
-
-                        {/* 3. FOLHA DIREITA */}
-                        <div className="folha-direita">
-                            <div className="vazio-topo-direita"></div> {/* Espaço para alinhar */}
                             
-                            {/* --- MAP DOS LIVROS (LADO DIREITO) --- */}
-                            <div className="grid-livros">
-                                {livrosDireita.map((livro) => renderCardLivro(livro))}
-                            </div>
-
-                            {/* Paginação (Next Page) */}
-                            <div className="rodape-direita">
-                                <span className="numero-pagina">1</span>
-                                <button className="btn-proxima-pagina">Próxima ➜</button>
+                            {/* RODAPÉ ESQUERDO (Botão Anterior) */}
+                            <div className="bottom-pagina-container" style={{justifyContent: 'flex-start'}}>
+                                {paginaAtual > 0 && (
+                                    <button className="btn-navegacao" onClick={paginaAnterior}>
+                                        🡠 Anterior
+                                    </button>
+                                )}
                             </div>
                         </div>
 
-                        {/* 4. BORDA DIREITA (Vazio) */}
+                        {/* --- FOLHA DIREITA --- */}
+                        <div className="folha-direita">
+                            <div className="vazio-pagina-direita-extra"></div>
+                            
+                            {/* GRID DIREITA */}
+                            <div className="grid-livros-conteudo">
+                                {livrosDireita.map(renderCard)}
+                            </div>
+                            
+                            {/* RODAPÉ DIREITO (Botão Próximo) */}
+                            <div className="bottom-pagina-container-direita" style={{justifyContent: 'flex-end'}}>
+                                {paginaAtual < totalPaginas - 1 && (
+                                    <button className="btn-navegacao" onClick={proximaPagina}>
+                                        Próxima 🡢
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
                         <div className="vazio-direita"></div>
 
                     </div>

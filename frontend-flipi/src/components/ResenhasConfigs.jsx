@@ -1,56 +1,50 @@
 import React, { useContext, useEffect, useState } from 'react';
 import './ResenhasConfigs.css';
 import { GlobalContext } from '../contexts/GlobalContext';
-import LivroAleatorio from './LivroAleatorio';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-function ResenhasConfigs() {
-    const { reviews,  dadosUsuarioLogado} = useContext(GlobalContext);
-    const [livros, setLivros] = useState([]);
-    const navigate = useNavigate();
+function ResenhasConfigs({ usuarioId }) { // Recebe ID via props (mais seguro)
+    const { dadosUsuarioLogado } = useContext(GlobalContext);
+    const [livrosResenhados, setLivrosResenhados] = useState([]);
+    const [popupOpen, setPopupOpen] = useState(false);
+    const [livroSelecionado, setLivroSelecionado] = useState(null);
 
-    const userId = dadosUsuarioLogado?.usuario_id;
-
-    const getLivroByIndex = (index) => {
-        if (!livros || livros.length === 0) return {};
-        return livros[index] || {};
-    };
+    // Usa o ID da prop ou do contexto como fallback
+    const finalUserId = usuarioId || dadosUsuarioLogado?.usuario_id;
 
     const atualizarCatalogo = async () => {
+        if (!finalUserId) return;
+
         try {
-            // Busca todas as resenhas
+            // 1. Busca todas as resenhas
             const resenhasResponse = await axios.get(`http://localhost:3000/resenha`);
-            const resenhas = resenhasResponse?.data || [];
+            const todasResenhas = resenhasResponse?.data || [];
 
-            // Filtra apenas as resenhas do usuário logado
-            const minhasResenhas = resenhas.filter(resenha => resenha.usuario_id === userId);
+            // 2. Filtra as minhas
+            const minhasResenhas = todasResenhas.filter(r => r.usuario_id === finalUserId);
 
-            // Para cada resenha, busca o livro correspondente pelo ID
-            const livrosPromises = minhasResenhas.map(async (resenha) => {
-                const livroId = resenha.livro_isbn;
+            // 3. Busca os dados dos livros dessas resenhas
+            const promises = minhasResenhas.map(async (resenha) => {
                 try {
-                    const livroResponse = await axios.get(`http://localhost:3000/livro/${livroId}`);
-                    return { ...livroResponse.data, resenha }; // Junta dados do livro e da resenha
+                    const livroResp = await axios.get(`http://localhost:3000/livro/${resenha.livro_isbn}`);
+                    return { ...livroResp.data, resenha }; // Combina livro + dados da resenha
                 } catch (err) {
-                    console.error(`Erro ao buscar livro ${livroId}:`, err);
-                    return { resenha }; // Retorna só a resenha se falhar
+                    console.error("Erro ao buscar livro", resenha.livro_isbn);
+                    return null;
                 }
             });
 
-            const livrosComResenhas = await Promise.all(livrosPromises);
-            setLivros(livrosComResenhas);
-            console.log('Livros com resenhas:', livrosComResenhas);
+            const resultados = await Promise.all(promises);
+            setLivrosResenhados(resultados.filter(item => item !== null)); // Remove falhas
+            
         } catch (error) {
-            console.error('Erro ao puxar as resenhas:', error);
+            console.error('Erro ao carregar resenhas:', error);
         }
     };
 
     useEffect(() => {
         atualizarCatalogo();
-    }, []);
-    const [popupOpen, setPopupOpen] = useState(false);
-    const [livroSelecionado, setLivroSelecionado] = useState(null);
+    }, [finalUserId]);
 
     const handleLivroClick = (livro) => {
         setLivroSelecionado(livro);
@@ -62,80 +56,90 @@ function ResenhasConfigs() {
         setLivroSelecionado(null);
     };
 
-    // Função para deletar a resenha
     const handleDeleteResenha = async () => {
-
-        if (!livroSelecionado?.resenha?.resenha_id) {
-            alert('Resenha não encontrada.');
-            return;
-        }
-        try {
-            await axios.delete(`http://localhost:3000/resenha/${livroSelecionado.resenha.resenha_id}`);
-            closePopup();
-            atualizarCatalogo();
-        } catch (error) {
-            alert('Erro ao deletar resenha.');
-            console.error(error);
+        if (!livroSelecionado?.resenha?.resenha_id) return;
+        
+        if(confirm("Tem certeza que deseja apagar essa resenha?")) {
+            try {
+                await axios.delete(`http://localhost:3000/resenha/${livroSelecionado.resenha.resenha_id}`);
+                alert("Resenha removida!");
+                closePopup();
+                atualizarCatalogo(); // Recarrega a lista
+            } catch (error) {
+                alert('Erro ao deletar.');
+            }
         }
     };
 
     return (
         <div className='resenhas-container'>
-            <div className="Fila-livros">
-                {livros.map((livro, idx) => (
-                    <div className="box-titulo" key={idx}>
-                        <button
-                            className="btn-livro-home"
-                            onClick={() => handleLivroClick(livro)}
-                        >
-                            {livro.livro_capa ? (
-                                <img src={livro.livro_capa} alt="" />
+            
+            {/* GRID DE RESENHAS */}
+            <div className="grid-minhas-resenhas">
+                {livrosResenhados.length > 0 ? (
+                    livrosResenhados.map((item, idx) => (
+                        <div className="card-minha-resenha" key={idx} onClick={() => handleLivroClick(item)}>
+                            {item.livro_capa ? (
+                                <img src={item.livro_capa} alt={item.livro_titulo} className="img-capa-resenha"/>
                             ) : (
-                                <div className="box-placeholder"></div>
+                                <div className="placeholder-capa-resenha"></div>
                             )}
-                            <p className='titulos-livros'>{livro.livro_titulo}</p>
-                        </button>
+                            
+                            {/* Overlay com a nota ao passar o mouse ou sempre visível */}
+                            <div className="badge-nota">
+                                {item.resenha.resenha_nota} ★
+                            </div>
+                            
+                            <p className='titulo-livro-resenha'>
+                                {item.livro_titulo.length > 30 ? item.livro_titulo.substring(0, 28) + '...' : item.livro_titulo}
+                            </p>
+                        </div>
+                    ))
+                ) : (
+                    <div className="sem-resenhas">
+                        <p>Você ainda não fez nenhuma resenha.</p>
+                        <p>Vá até a biblioteca e avalie um livro!</p>
                     </div>
-                ))}
+                )}
             </div>
+
+            {/* MODAL / POPUP */}
             {popupOpen && livroSelecionado && (
                 <div className="popup-overlay" onClick={closePopup}>
                     <div className="popup-content" onClick={e => e.stopPropagation()}>
-                            <h2 className='h2-title'>{livroSelecionado.livro_titulo}</h2>
-                        <div className="popup-itens">
+                        <button className="btn-fechar-popup" onClick={closePopup}>×</button>
+                        
+                        <h2 className='popup-titulo'>{livroSelecionado.livro_titulo}</h2>
+                        
+                        <div className="popup-corpo">
+                            <div className="popup-capa">
+                                <img src={livroSelecionado.livro_capa || "https://via.placeholder.com/150"} alt="Capa" />
+                            </div>
+                            
+                            <div className="popup-detalhes">
+                                <div className="detalhe-item">
+                                    <strong>Sua Nota:</strong> 
+                                    <span className="nota-destaque"> {livroSelecionado.resenha.resenha_nota}/5 ★</span>
+                                </div>
+                                
+                                <div className="detalhe-item">
+                                    <strong>Título da Resenha:</strong>
+                                    <p>{livroSelecionado.resenha.resenha_titulo}</p>
+                                </div>
 
-                        <button
-                            className="close-popup"
-                            onClick={closePopup}>
-                            X
-                        </button>
-                        {livroSelecionado.livro_capa && (
-                            <img src={livroSelecionado.livro_capa} alt="" style={{ maxWidth: '150px' }} />
-                        )}
-                        <div className="popup-info">
-                        <div>
-                            <strong className="popup-text">Título da Resenha:</strong>{" "}
-                            {livroSelecionado.resenha?.resenha_titulo ?? "Sem título"}
+                                <div className="detalhe-item">
+                                    <strong>O que você achou:</strong>
+                                    <div className="texto-resenha-scroll">
+                                        "{livroSelecionado.resenha.resenha_texto}"
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <strong className="popup-text">Avaliação:</strong>{" "}
-                            {livroSelecionado.resenha?.resenha_nota ?? "Sem avaliação"}
-                            /5
-                        </div>
-                        <div>
-                            <strong className="popup-text">Comentário:</strong>{" "}
-                            {livroSelecionado.resenha?.resenha_texto ?? "Sem comentário"}
-                        </div>
-                        </div>
-                        </div>
-                        <div className="btn-delete-resenha">
-                        <button
-                            className="btn-deletar-resenha"
-                            onClick={handleDeleteResenha}
-                        >
-                            Deletar Resenha
-                        </button>
-                        {/* iusfebhpwurb */}
+
+                        <div className="popup-footer">
+                            <button className="btn-deletar" onClick={handleDeleteResenha}>
+                                🗑️ Apagar Resenha
+                            </button>
                         </div>
                     </div>
                 </div>

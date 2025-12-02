@@ -180,10 +180,10 @@ app.use(express.json())
 async function povoarBancoComDadosFicticios(pool) {
     const client = await pool.connect();
     try {
-        console.log("🚀 Iniciando povoamento de dados fictícios (Sem Fotos)...");
-
-        // 1. CRIAR USUÁRIOS
-        // Removida a coluna url_foto e seus valores
+// 1. CRIAR USUÁRIOS
+        console.log("👥 Criando/Verificando usuários...");
+        
+        // ... (Seu código de insert dos usuários fica aqui) ...
         const insertUsuarios = `
             INSERT INTO usuario (usuario_nome, usuario_apelido, usuario_email, usuario_senha) VALUES
             ('Lucas "King" Silva', 'king_fan', 'lucas@email.com', '123456'),
@@ -191,110 +191,189 @@ async function povoarBancoComDadosFicticios(pool) {
             ('Roberto Crítico', 'beto_books', 'beto@email.com', '123456'),
             ('Fernanda Geek', 'fer_targaryen', 'fer@email.com', '123456'),
             ('João Casual', 'joao_le', 'joao@email.com', '123456'),
-            ('Ana Cult', 'ana_classicos', 'ana@email.com', '123456')
+            ('Ana Clássicos', 'ana_classicos', 'ana@email.com', '123456'),
+            ('Pedro Potterhead', 'pedro_hpat', 'pedro@email.com', '123456'),
+            ('Sofia Thriller', 'sofi_suspense', 'sofia@email.com', '123456'),
+            ('Guilherme SciFi', 'gui_futuro', 'gui@email.com', '123456'),
+            ('Beatriz YoungAdult', 'bia_books', 'bia@email.com', '123456')
             ON CONFLICT (usuario_email) DO NOTHING;
         `;
-        
         await client.query(insertUsuarios);
-        console.log("✅ Usuários criados.");
 
-// 2. CRIAR RESENHAS REAIS (MANUAIS E CURADAS) - COM PROTEÇÃO CONTRA DUPLICIDADE
-        console.log("📝 Inserindo carga massiva de resenhas reais...");
+        // --- CHECKUP DE REALIDADE (O QUE O NODE VÊ?) ---
+        console.log("🔍 [DEBUG] Listando usuários encontrados no banco agora:");
+        const checkAllUsers = await client.query('SELECT usuario_id, usuario_email FROM usuario');
+        
+        if (checkAllUsers.rows.length === 0) {
+            console.error("🚨 ERRO GRAVE: O banco está vazio! O insert falhou silenciosamente.");
+        } else {
+            console.table(checkAllUsers.rows); // Isso vai imprimir uma tabela linda no terminal
+        }
+        // ------------------------------------------------
 
+        // 2. RESENHAS CURADAS (Baseadas na sua lista de ISBNs)
         const reviewsData = [
-            // --- GAME OF THRONES (9780553381689) ---
-            { isbn: 9780553381689, email: 'fer@email.com', nota: 5, curtidas: 120, titulo: 'A Bíblia da Fantasia', texto: 'George R.R. Martin criou um mundo tão complexo que a Terra Média parece um passeio no parque. Tyrion é o melhor personagem já escrito.' },
-            { isbn: 9780553381689, email: 'lucas@email.com', nota: 5, curtidas: 45, titulo: 'Brutal e Genial', texto: 'Não se apegue a ninguém. A política é sangrenta e o inverno está chegando. Leitura obrigatória.' },
-            { isbn: 9780553381689, email: 'mari@email.com', nota: 3, curtidas: 12, titulo: 'Muito violento', texto: 'A história é boa, mas precisa de estômago forte. Muita descrição de banquete e muita crueldade.' },
-            { isbn: 9780553381689, email: 'beto@email.com', nota: 4, curtidas: 30, titulo: 'Narrativa densa', texto: 'A alternância de pontos de vista é uma aula de escrita criativa, embora o ritmo caia em alguns momentos.' },
+            // --- GEORGE R.R. MARTIN (Game of Thrones) --
+            { isbn: 9780553573404, email: 'fer@email.com', nota: 5, curtidas: 120, titulo: 'O início da lenda', texto: 'A política de Westeros é fascinante. Muito melhor que a série.' },
+            { isbn: 9780553381689, email: 'lucas@email.com', nota: 5, curtidas: 45, titulo: 'Brutal', texto: 'Não se apegue a ninguém. A escrita é densa mas vale cada página.' },
+            { isbn: 9781417663200, email: 'fer@email.com', nota: 5, curtidas: 80, titulo: 'A Fúria dos Reis', texto: 'A guerra dos cinco reis começa. Tyrion Lannister brilha muito neste livro.' },
+            { isbn: 9780007582235, email: 'beto@email.com', nota: 4, curtidas: 30, titulo: 'O Festim dos Corvos', texto: 'Um ritmo mais lento, focado nas consequências da guerra. Cersei é uma personagem complexa.' },
+            { isbn: 9781101886045, email: 'gui@email.com', nota: 5, curtidas: 55, titulo: 'Dança dos Dragões', texto: 'Finalmente os dragões cresceram! O Norte se lembra.' },
 
-            // --- IT: A COISA (9788560280940) ---
-            { isbn: 9788560280940, email: 'lucas@email.com', nota: 5, curtidas: 88, titulo: 'O Rei do Terror', texto: 'Pennywise é apenas a ponta do iceberg. O verdadeiro monstro é a indiferença de Derry. King no seu auge.' },
-            { isbn: 9788560280940, email: 'ana@email.com', nota: 4, curtidas: 20, titulo: 'Longo, mas vale a pena', texto: '1000 páginas que passam voando. A amizade dos perdedores é a alma do livro.' },
-            { isbn: 9788560280940, email: 'joao@email.com', nota: 5, curtidas: 15, titulo: 'Assustador', texto: 'Tive pesadelos por uma semana. Recomendo!' },
+            // --- STEPHEN KING (Terror/Suspense) ---
+            { isbn: 9788581050485, email: 'lucas@email.com', nota: 5, curtidas: 60, titulo: 'O Iluminado', texto: 'O hotel Overlook é a entidade mais assustadora já criada. Claustrofóbico.' },
+            { isbn: 9788581050485, email: 'sofia@email.com', nota: 4, curtidas: 22, titulo: 'Melhor que o filme', texto: 'O livro aprofunda a loucura de Jack de uma forma que o filme não conseguiu.' },
+            { isbn: 9788581052144, email: 'lucas@email.com', nota: 5, curtidas: 50, titulo: 'Misery', texto: 'Annie Wilkes é a vilã mais realista do King. Angustiante.' },
+            { isbn: 9788581050362, email: 'bia@email.com', nota: 4, curtidas: 15, titulo: 'Carrie', texto: 'Triste e explosivo. O bullying retratado é pesado.' },
+            { isbn: 9788581050454, email: 'gui@email.com', nota: 4, curtidas: 20, titulo: 'Salem', texto: 'Vampiros clássicos, sem brilhar no sol. A cidade morrendo aos poucos é genial.' },
+            { isbn: 9788581050218, email: 'fer@email.com', nota: 5, curtidas: 100, titulo: 'A Torre Negra', texto: 'O homem de preto fugia pelo deserto, e o pistoleiro ia atrás. O início da saga.' },
+            { isbn: 9788539000166, email: 'mari@email.com', nota: 5, curtidas: 200, titulo: 'À Espera de um Milagre', texto: 'Chorei copiosamente. John Coffey, inocente e mágico.' },
+            { isbn: 9788581050546, email: 'gui@email.com', nota: 5, curtidas: 85, titulo: 'A Dança da Morte', texto: 'O épico pós-apocalíptico definitivo. Captain Trips assusta.' },
+            { isbn: 9788556510334, email: 'sofia@email.com', nota: 4, curtidas: 12, titulo: 'A Zona Morta', texto: 'Um suspense político com poderes psíquicos. Muito bom.' },
+            { isbn: 9788960176751, email: 'sofia@email.com', nota: 4, curtidas: 18, titulo: 'Mr. Mercedes', texto: 'King provando que sabe escrever policial tão bem quanto terror.' },
+            { isbn: 9788560280940, email: 'lucas@email.com', nota: 5, curtidas: 99, titulo: 'IT: A Coisa', texto: 'A amizade do clube dos perdedores é a alma do livro. Pennywise é pesadelo puro.' },
 
-            // --- O ILUMINADO (9788581050485) ---
-            { isbn: 9788581050485, email: 'lucas@email.com', nota: 5, curtidas: 60, titulo: 'Claustrofóbico', texto: 'O hotel Overlook é um personagem vivo. Esqueça o filme, o livro é muito mais profundo psicologicamente.' },
-            { isbn: 9788581050485, email: 'fer@email.com', nota: 4, curtidas: 22, titulo: 'Clássico', texto: 'A descida de Jack à loucura é construída tijolo por tijolo. Mestre King.' },
-            { isbn: 9788581050485, email: 'beto@email.com', nota: 5, curtidas: 40, titulo: 'Terror Psicológico', texto: 'Uma análise sobre o alcoolismo e a destruição da família disfarçada de história de fantasma.' },
+            // --- HARRY POTTER ---
+            { isbn: 9789722365543, email: 'pedro@email.com', nota: 5, curtidas: 150, titulo: 'Onde tudo começou', texto: 'Você é um bruxo, Harry! Relendo pela décima vez.' },
+            { isbn: 9788532530790, email: 'bia@email.com', nota: 4, curtidas: 40, titulo: 'Câmara Secreta', texto: 'Um pouco mais sombrio que o primeiro. Dobby é irritante mas fofo.' },
+            { isbn: 9788532530806, email: 'pedro@email.com', nota: 5, curtidas: 200, titulo: 'Prisioneiro de Azkaban', texto: 'O melhor da saga! Sirius Black e os Marotos.' },
+            { isbn: 8532512526, email: 'fer@email.com', nota: 5, curtidas: 110, titulo: 'Cálice de Fogo', texto: 'O torneio tribruxo expande o mundo mágico. O retorno de Voldemort é tenso.' },
+            { isbn: 9788532516220, email: 'beto@email.com', nota: 3, curtidas: 20, titulo: 'Ordem da Fênix', texto: 'Harry está muito revoltado neste livro, mas Umbridge é a melhor vilã.' },
+            { isbn: 9788532519474, email: 'pedro@email.com', nota: 5, curtidas: 90, titulo: 'Enigma do Príncipe', texto: 'O passado de Voldemort é fascinante. O final... sem palavras.' },
+            { isbn: 9788532530424, email: 'beto@email.com', nota: 2, curtidas: 50, titulo: 'Roteiro de Teatro', texto: 'Não considero canônico. A história viaja demais no tempo.' },
 
-            // --- MISERY (9788581052144) ---
-            { isbn: 9788581052144, email: 'mari@email.com', nota: 5, curtidas: 55, titulo: 'Angustiante', texto: 'Não consegui largar. Annie Wilkes é a vilã mais aterrorizante porque ela poderia ser real.' },
-            { isbn: 9788581052144, email: 'joao@email.com', nota: 4, curtidas: 10, titulo: 'Tensão pura', texto: 'Li tudo em uma sentada. Você sente a dor do protagonista.' },
+            // --- ROMANCE & DRAMA (Colleen Hoover, John Green, etc) ---
+            { isbn: 9788551004449, email: 'bia@email.com', nota: 4, curtidas: 45, titulo: 'O Verão que mudou...', texto: 'Leitura leve de verão, triângulo amoroso clássico.' },
+            { isbn: 9789899096486, email: 'mari@email.com', nota: 5, curtidas: 88, titulo: 'A Hipótese do Amor', texto: 'Fake dating com cientistas? Amei demais! Adam Carlsen é tudo.' },
+            { isbn: 9781471154638, email: 'mari@email.com', nota: 4, curtidas: 30, titulo: 'Novembro 9', texto: 'Colleen Hoover sabe destruir nosso coração. O plot twist me pegou.' },
+            { isbn: 9788501114181, email: 'bia@email.com', nota: 4, curtidas: 60, titulo: 'Um de nós está mentindo', texto: 'Clube dos cinco com assassinato. Prende do início ao fim.' },
+            { isbn: 9781608181797, email: 'mari@email.com', nota: 3, curtidas: 10, titulo: 'Romance leve', texto: 'Bom para curar ressaca literária.' },
+            { isbn: 9781401309169, email: 'mari@email.com', nota: 5, curtidas: 200, titulo: 'PS Eu Te Amo', texto: 'Preparem os lenços. Chorei do começo ao fim.' },
+            { isbn: 9788542209334, email: 'sofia@email.com', nota: 5, curtidas: 40, titulo: 'Garota em Pedaços', texto: 'Livro pesado, gatilhos fortes, mas muito necessário sobre saúde mental.' },
+            { isbn: 9781527225336, email: 'bia@email.com', nota: 5, curtidas: 120, titulo: 'Heartstopper', texto: 'A coisa mais fofa do mundo! Nick e Charlie são perfeitos.' },
+            { isbn: 9788542217735, email: 'ana@email.com', nota: 5, curtidas: 70, titulo: 'Mulherzinhas', texto: 'Jo March é uma inspiração. Um clássico sobre irmandade.' },
 
-            // --- PS, EU TE AMO (9781401309169) ---
-            { isbn: 9781401309169, email: 'mari@email.com', nota: 5, curtidas: 200, titulo: 'Chorei rios', texto: 'A história de amor mais linda e triste. Preparem os lenços.' },
-            { isbn: 9781401309169, email: 'ana@email.com', nota: 4, curtidas: 45, titulo: 'Emocionante', texto: 'Ensina muito sobre luto e como seguir em frente.' },
-            { isbn: 9781401309169, email: 'lucas@email.com', nota: 2, curtidas: 5, titulo: 'Meloso demais', texto: 'Não é meu estilo. Muito drama para o meu gosto, prefiro terror.' },
+            // --- FANTASIA & DISTOPIA ---
+            { isbn: 9788580573619, email: 'fer@email.com', nota: 5, curtidas: 60, titulo: 'Roda do Tempo', texto: 'Se você gosta de Tolkien, precisa ler Jordan. Épico.' },
+            { isbn: 9788598078397, email: 'pedro@email.com', nota: 5, curtidas: 110, titulo: 'Percy Jackson', texto: 'Mitologia grega em Nova York. Divertido e cheio de ação.' },
+            { isbn: 9789895572700, email: 'bia@email.com', nota: 3, curtidas: 200, titulo: 'Crepúsculo', texto: 'É ruim? Talvez. Eu amo? Com certeza. Nostalgia pura.' },
+            { isbn: 9788501076601, email: 'mari@email.com', nota: 5, curtidas: 150, titulo: 'Corte de Névoa e Fúria', texto: 'Rhysand definiu meus padrões de homem. O capítulo 55...' },
+            { isbn: 9789897545351, email: 'bia@email.com', nota: 4, curtidas: 80, titulo: 'ACOTAR', texto: 'Uma releitura de A Bela e a Fera com faeries. O começo é lento mas melhora.' },
+            { isbn: 9788576573135, email: 'gui@email.com', nota: 5, curtidas: 95, titulo: 'Duna', texto: 'A obra prima da ficção científica. Política, ecologia e religião.' },
+            { isbn: 9788532520661, email: 'ana@email.com', nota: 5, curtidas: 100, titulo: 'O Conto da Aia', texto: 'Perturbador e necessário. Nolite te bastardes carborundorum.' },
+            { isbn: 9780385907026, email: 'gui@email.com', nota: 4, curtidas: 40, titulo: 'Maze Runner', texto: 'Correria e mistério. O final me deixou com muitas perguntas.' },
+            { isbn: 9789722330107, email: 'sofia@email.com', nota: 5, curtidas: 60, titulo: 'Coraline', texto: 'Neil Gaiman cria um conto de fadas sombrio. A Outra Mãe dá medo.' },
 
-            // --- CINQUENTA TONS (9782253176503) ---
-            { isbn: 9782253176503, email: 'mari@email.com', nota: 4, curtidas: 30, titulo: 'Culpada por gostar', texto: 'Não é alta literatura, mas prende a atenção. O romance é intenso.' },
-            { isbn: 9782253176503, email: 'beto@email.com', nota: 1, curtidas: 100, titulo: 'Péssima escrita', texto: 'Repetitivo, personagens rasos e narrativa fraca. O sucesso é um mistério.' },
-            { isbn: 9782253176503, email: 'fer@email.com', nota: 2, curtidas: 15, titulo: 'Fanfic ruim', texto: 'Parece uma fanfic mal escrita de Crepúsculo. Passo.' },
+            // --- CLÁSSICOS & LITERATURA ---
+            { isbn: 9786587034201, email: 'beto@email.com', nota: 5, curtidas: 300, titulo: '1984', texto: 'O Grande Irmão está observando. Mais atual do que nunca.' },
+            { isbn: 9786586064407, email: 'gui@email.com', nota: 5, curtidas: 180, titulo: 'Revolução dos Bichos', texto: 'Todos os animais são iguais, mas alguns são mais iguais que outros.' },
+            { isbn: 9788588781610, email: 'ana@email.com', nota: 5, curtidas: 220, titulo: 'Orgulho e Preconceito', texto: 'Mr. Darcy é o blueprint. Jane Austen, a maior de todas.' },
+            { isbn: 9780670520732, email: 'beto@email.com', nota: 5, curtidas: 40, titulo: 'Ratos e Homens', texto: 'Uma história curta e devastadora sobre amizade e sonhos.' },
+            { isbn: 9788503009492, email: 'ana@email.com', nota: 5, curtidas: 90, titulo: 'O Sol é para todos', texto: 'Atticus Finch é o exemplo de integridade. Leitura obrigatória.' },
+            { isbn: 9780786290215, email: 'mari@email.com', nota: 5, curtidas: 130, titulo: 'A Menina que Roubava Livros', texto: 'Narrado pela Morte. Chorei até desidratar.' },
+            { isbn: 9786580210343, email: 'gui@email.com', nota: 5, curtidas: 70, titulo: 'Frankenstein', texto: 'Não é sobre um monstro, é sobre rejeição e humanidade.' },
+            { isbn: 9786580210008, email: 'beto@email.com', nota: 5, curtidas: 65, titulo: 'A Metamorfose', texto: 'Gregor Samsa acordou transformado num inseto. Kafka e a alienação.' },
+            { isbn: 9788522005239, email: 'joao@email.com', nota: 5, curtidas: 500, titulo: 'O Pequeno Príncipe', texto: 'O essencial é invisível aos olhos. Para crianças e adultos.' },
+            { isbn: 9788537817520, email: 'ana@email.com', nota: 4, curtidas: 55, titulo: 'Morro dos Ventos Uivantes', texto: 'Heathcliff e Catherine são tóxicos, mas a escrita é poderosa.' },
+            { isbn: 9788587575012, email: 'beto@email.com', nota: 3, curtidas: 40, titulo: 'O Apanhador...', texto: 'Holden Caulfield é insuportável ou incompreendido? Ainda não decidi.' },
+            { isbn: 9788501014863, email: 'beto@email.com', nota: 5, curtidas: 35, titulo: 'O Estrangeiro', texto: 'Hoje mamãe morreu. Camus e o absurdo da existência.' },
+            { isbn: 9788501068200, email: 'mari@email.com', nota: 5, curtidas: 150, titulo: 'Diário de Anne Frank', texto: 'Um relato real e doloroso de uma menina cheia de sonhos.' },
+            { isbn: 9788581301723, email: 'ana@email.com', nota: 4, curtidas: 60, titulo: 'O Grande Gatsby', texto: 'O sonho americano e a decadência. Old sport!' },
+            { isbn: 9788579620560, email: 'beto@email.com', nota: 5, curtidas: 80, titulo: 'Lolita', texto: 'A prosa é linda, o tema é perturbador. Nabokov era um gênio.' },
 
-            // --- O CÓDIGO DA VINCI (9788957591055) ---
-            { isbn: 9788957591055, email: 'joao@email.com', nota: 5, curtidas: 50, titulo: 'Viciante', texto: 'Capítulos curtos que te obrigam a ler "só mais um". Um thriller perfeito.' },
-            { isbn: 9788957591055, email: 'ana@email.com', nota: 3, curtidas: 20, titulo: 'Divertido', texto: 'É ficção, não aula de história. Se ler com isso em mente, é ótimo.' },
+            // --- THRILLER & SUSPENSE ---
+            { isbn: 9788957591055, email: 'joao@email.com', nota: 4, curtidas: 50, titulo: 'Código Da Vinci', texto: 'Dan Brown sabe prender o leitor. Polêmica e ação.' },
+            { isbn: 9788535924015, email: 'sofia@email.com', nota: 5, curtidas: 40, titulo: 'Dias Perfeitos', texto: 'Raphael Montes tem uma mente doentia (elogio). Téo é assustador.' },
+            { isbn: 9788574482446, email: 'beto@email.com', nota: 5, curtidas: 25, titulo: 'Declínio de um homem', texto: 'Osamu Dazai escreve com a própria alma. Deprimente e belo.' },
+            { isbn: 8520917674, email: 'mari@email.com', nota: 5, curtidas: 90, titulo: 'Caçador de Pipas', texto: 'Por você, faria isso mil vezes. Emocionante.' },
             
-            // --- A ARTE DA GUERRA (9788533616844) ---
-            { isbn: 9788533616844, email: 'beto@email.com', nota: 5, curtidas: 80, titulo: 'Atemporal', texto: 'Estratégias que servem para batalhas e para o mundo corporativo atual.' },
-            { isbn: 9788533616844, email: 'lucas@email.com', nota: 3, curtidas: 10, titulo: 'Filosófico', texto: 'Interessante, mas um pouco repetitivo em alguns pontos.' },
+            // --- OUTROS/GERAL (Preenchendo gaps) ---
+            { isbn: 9788501071545, email: 'beto@email.com', nota: 5, curtidas: 30, titulo: 'Uma Vida Pequena', texto: 'O livro mais triste que já li. Jude merece paz.' },
+            { isbn: 9788580573015, email: 'bia@email.com', nota: 5, curtidas: 100, titulo: 'Extraordinário', texto: 'Auggie Pullman ensina sobre gentileza. Lindo.' },
+            { isbn: 9788501110817, email: 'gui@email.com', nota: 5, curtidas: 75, titulo: 'O Ódio que Você Semeia', texto: 'Starr é uma protagonista incrível. Leitura necessária sobre racismo.' },
+            { isbn: 9780224070966, email: 'bia@email.com', nota: 5, curtidas: 60, titulo: 'Matilda', texto: 'Dahl cria magia. Quem nunca quis mover objetos com a mente?' },
+            { isbn: 9788535937473, email: 'sofia@email.com', nota: 4, curtidas: 20, titulo: 'Uma família feliz', texto: 'Suspense doméstico cheio de reviravoltas.' },
+            { isbn: 9782253176503, email: 'mari@email.com', nota: 3, curtidas: 100, titulo: 'Cinquenta Tons', texto: 'É fanfic de Crepúsculo, eu sei. Mas li tudo em dois dias.' },
 
-            // --- CARRIE, A ESTRANHA (9788581050362) ---
-            { isbn: 9788581050362, email: 'fer@email.com', nota: 4, curtidas: 35, titulo: 'A estreia do Rei', texto: 'Cruel e triste. O bullying retratado aqui é o verdadeiro horror.' },
-            { isbn: 9788581050362, email: 'mari@email.com', nota: 3, curtidas: 18, titulo: 'Triste', texto: 'Fiquei com muita pena da Carrie. O final é explosivo.' },
+            // --- CROSSOVERS: FANTASIA & SCI-FI ---
+    // Lucas (fã de terror/King) lendo Game of Thrones (brutalidade)
+    { isbn: 9780553573404, email: 'lucas@email.com', nota: 5, curtidas: 88, titulo: 'Sangue e Neve', texto: 'A brutalidade desse mundo me lembra o melhor do horror. Ned Stark não merecia aquilo.' },
+    // Gui (fã de Sci-fi/King) lendo Harry Potter
+    { isbn: 9789722365543, email: 'gui@email.com', nota: 4, curtidas: 45, titulo: 'Universo rico', texto: 'O worldbuilding é sólido, embora o sistema de magia seja um pouco "soft" demais pro meu gosto.' },
+    // Fer (fã de épicos) lendo Duna
+    { isbn: 9788576573135, email: 'fer@email.com', nota: 5, curtidas: 120, titulo: 'Escala monumental', texto: 'A política das Grandes Casas é tão complexa quanto Westeros. Arrakis é um personagem vivo.' },
+    // Pedro (fã de HP/Fantasia) lendo Percy Jackson (releitura ou comparação)
+    { isbn: 9788598078397, email: 'bia@email.com', nota: 5, curtidas: 90, titulo: 'Melhor que o filme', texto: 'Filho de Poseidon > Harry Potter? Polêmica! Amo o humor do Percy.' },
 
-            // --- FRANKENSTEIN (9786580210343) ---
-            { isbn: 9786580210343, email: 'ana@email.com', nota: 5, curtidas: 90, titulo: 'Obra Prima', texto: 'Não é sobre um monstro, é sobre o que nos torna humanos. Mary Shelley era genial.' },
-            { isbn: 9786580210343, email: 'beto@email.com', nota: 5, curtidas: 44, titulo: 'Essencial', texto: 'O nascimento da ficção científica. A linguagem é belíssima.' },
+    // --- CROSSOVERS: TERROR & SUSPENSE ---
+    // Beto (Crítico/Clássicos) lendo King
+    { isbn: 9788581050485, email: 'beto@email.com', nota: 3, curtidas: 35, titulo: 'Bom, mas prolixo', texto: 'King tem boas ideias, mas o livro precisava de um editor mais severo. O terror psicológico funciona.' },
+    // Ana (Clássicos/Feminismo) lendo O Conto da Aia
+    { isbn: 9788532520661, email: 'sofia@email.com', nota: 5, curtidas: 110, titulo: 'Assustadoramente real', texto: 'Gilead não parece tão distante assim. A narrativa da Offred me deu pesadelos.' },
+    // Gui lendo IT: A Coisa
+    { isbn: 9788560280940, email: 'gui@email.com', nota: 5, curtidas: 70, titulo: 'Derry é maldita', texto: 'A mitologia da tartaruga e do macroverso é a melhor parte. O terror cósmico por trás do palhaço.' },
 
-            // --- DIAS PERFEITOS (9788535924015) ---
-            { isbn: 9788535924015, email: 'lucas@email.com', nota: 4, curtidas: 25, titulo: 'Perturbador', texto: 'Rafael Montes sabe criar psicopatas como ninguém. Téo é odiável.' },
-            { isbn: 9788535924015, email: 'mari@email.com', nota: 2, curtidas: 10, titulo: 'Muito pesado', texto: 'Me senti mal lendo. Angustiante demais para mim.' },
+    // --- CROSSOVERS: ROMANCE & DRAMA ---
+    // Mari (Romance/Drama) lendo Orgulho e Preconceito
+    { isbn: 9788588781610, email: 'mari@email.com', nota: 5, curtidas: 250, titulo: 'O romance original', texto: 'Darcy e Elizabeth criaram o tropo "enemies to lovers". Suspiro a cada página.' },
+    // Bia (YA/Romance) lendo Crepúsculo (releitura)
+    { isbn: 9789895572700, email: 'mari@email.com', nota: 4, curtidas: 100, titulo: 'Guilty Pleasure', texto: 'Edward brilha no sol, é ridículo, mas eu não consigo parar de ler.' },
+    // Sofia (Thriller) lendo Verity (ops, lista tem Colleen Hoover - Novembro 9)
+    { isbn: 9781471154638, email: 'sofia@email.com', nota: 2, curtidas: 15, titulo: 'Problemático', texto: 'O romance é tóxico e o plot twist não faz sentido. Esperava mais suspense.' },
+    
+    // --- CROSSOVERS: CLÁSSICOS & GERAL ---
+    // Lucas (Terror) lendo A Metamorfose
+    { isbn: 9786580210008, email: 'lucas@email.com', nota: 5, curtidas: 60, titulo: 'Body Horror existencial', texto: 'Acordar como um inseto é o pesadelo definitivo. A rejeição da família é a verdadeira monstruosidade.' },
+    // Ana (Clássicos) lendo 1984
+    { isbn: 9786587034201, email: 'ana@email.com', nota: 5, curtidas: 95, titulo: 'A morte da verdade', texto: 'O Duplipensar é uma ferramenta política atual. Orwell entendeu como a linguagem molda a realidade.' },
+    // Joao (Geral) lendo O Código Da Vinci
+    { isbn: 9788957591055, email: 'pedro@email.com', nota: 4, curtidas: 40, titulo: 'Sessão da tarde', texto: 'É uma caça ao tesouro divertida. Langdon resolve tudo muito fácil, mas entretém.' },
+    // Bia (Leve) lendo O Pequeno Príncipe
+    { isbn: 9788522005239, email: 'bia@email.com', nota: 5, curtidas: 300, titulo: 'Para chorar', texto: 'Tu te tornas eternamente responsável por aquilo que cativas. Lição pra vida.' },
+    
+    // --- COMPLETANDO COM MAIS OPINIÕES ---
+    { isbn: 9788535924015, email: 'lucas@email.com', nota: 5, curtidas: 50, titulo: 'Brasil no mapa do terror', texto: 'Dias Perfeitos é sufocante. Raphael Montes não deve nada aos gringos.' },
+    { isbn: 9780224070966, email: 'mari@email.com', nota: 5, curtidas: 80, titulo: 'Queria ser a Matilda', texto: 'A Srta. Honey é o tipo de professora que muda o mundo. Livro doce e vingativo na medida certa.' },
+    { isbn: 9788501014863, email: 'gui@email.com', nota: 4, curtidas: 30, titulo: 'Indiferença total', texto: 'O Estrangeiro me deixou desconfortável. Meursault não sente nada, e isso é assustador.' },
+    { isbn: 9788551004449, email: 'ana@email.com', nota: 3, curtidas: 20, titulo: 'Clichê adolescente', texto: 'O Verão que mudou minha vida é bem escrito, mas os personagens tomam decisões muito imaturas.' }
 
-            // --- A ESPERA DE UM MILAGRE (9788539000166) ---
-            { isbn: 9788539000166, email: 'mari@email.com', nota: 5, curtidas: 110, titulo: 'Lindo e Triste', texto: 'Chorei do início ao fim. John Coffey, como a bebida, só que não se escreve igual.' },
-            { isbn: 9788539000166, email: 'joao@email.com', nota: 5, curtidas: 40, titulo: 'Favorito da vida', texto: 'Uma história sobre bondade em lugares cruéis.' },
-
-            // --- O PISTOLEIRO (9788581050218) ---
-            { isbn: 9788581050218, email: 'fer@email.com', nota: 5, curtidas: 50, titulo: 'O homem de preto fugia...', texto: 'O início da maior saga já escrita. Pode parecer confuso, mas vale a pena insistir.' },
-            { isbn: 9788581050218, email: 'ana@email.com', nota: 3, curtidas: 12, titulo: 'Diferente', texto: 'Uma mistura estranha de faroeste e fantasia. Fiquei curiosa para ler os próximos.' },
-
-            // --- FIVE PEOPLE YOU MEET IN HEAVEN (9781401308582) ---
-            { isbn: 9781401308582, email: 'mari@email.com', nota: 5, curtidas: 66, titulo: 'Toca a alma', texto: 'Te faz repensar todas as conexões da sua vida. Maravilhoso.' },
             
-            // --- VARIADOS (Preenchendo a tabela) ---
-            { isbn: 9780263870770, email: 'mari@email.com', nota: 4, curtidas: 12, titulo: 'Romance leve', texto: 'Ótimo para curar ressaca literária.' },
-            { isbn: 9780263929874, email: 'mari@email.com', nota: 3, curtidas: 8, titulo: 'Clichê', texto: 'Aquele clichê que a gente ama ler numa tarde chuvosa.' },
-            { isbn: 9788535937473, email: 'beto@email.com', nota: 4, curtidas: 22, titulo: 'Instigante', texto: 'Uma trama familiar complexa e cheia de segredos.' },
-            { isbn: 9788539000753, email: 'lucas@email.com', nota: 3, curtidas: 15, titulo: 'Razoável', texto: 'Tem bons momentos de suspense, mas o final deixou a desejar.' },
-            { isbn: 9788556510334, email: 'lucas@email.com', nota: 5, curtidas: 48, titulo: 'Zona Morta é top', texto: 'Um dos melhores livros "menores" do King. A premissa é excelente.' },
-            { isbn: 9788581050546, email: 'fer@email.com', nota: 5, curtidas: 99, titulo: 'A Dança da Morte', texto: 'O épico pós-apocalíptico definitivo. Captain Trips assusta até hoje.' },
-            { isbn: 9788581050454, email: 'lucas@email.com', nota: 4, curtidas: 33, titulo: 'Vampiros de verdade', texto: 'Salem é assustadora. Nada de vampiros brilhando aqui.' },
-            { isbn: 9780373336036, email: 'joao@email.com', nota: 2, curtidas: 2, titulo: 'Chato', texto: 'Não consegui me conectar com os personagens.' },
-            { isbn: 9781608181797, email: 'ana@email.com', nota: 3, curtidas: 5, titulo: 'Ok', texto: 'Uma leitura rápida, sem grandes pretensões.' },
-            { isbn: 9781846175916, email: 'mari@email.com', nota: 4, curtidas: 10, titulo: 'Fofo', texto: 'Uma história doce e encantadora.' },
-            { isbn: 9788580573619, email: 'fer@email.com', nota: 5, curtidas: 75, titulo: 'A Roda do Tempo', texto: 'Se você gosta de Tolkien e Martin, precisa ler isso. Épico demais.' },
-            { isbn: 9782290019436, email: 'fer@email.com', nota: 5, curtidas: 40, titulo: 'Game of Thrones em francês', texto: 'Reli para treinar o idioma. A história continua imbatível.' },
-            { isbn: 9780008762278, email: 'joao@email.com', nota: 3, curtidas: 6, titulo: 'Divertido', texto: 'Dei boas risadas em alguns momentos.' },
-            { isbn: 9788960176751, email: 'lucas@email.com', nota: 5, curtidas: 30, titulo: 'Mr Mercedes', texto: 'King provando que sabe escrever policial tão bem quanto terror.' },
-            { isbn: 9781401309220, email: 'beto@email.com', nota: 4, curtidas: 18, titulo: 'Neurociência', texto: 'Fascinante entender como a memória funciona.' },
-            { isbn: 9781401308605, email: 'beto@email.com', nota: 5, curtidas: 55, titulo: 'Cauda Longa', texto: 'Leitura obrigatória para entender a economia digital.' },
-            { isbn: 9781401309121, email: 'joao@email.com', nota: 3, curtidas: 12, titulo: 'Bom', texto: 'Bons insights sobre relacionamentos.' },
-            { isbn: 9781401308667, email: 'mari@email.com', nota: 5, curtidas: 40, titulo: 'Cecelia Ahern!', texto: 'A mesma autora de PS Eu Te Amo. Nunca decepciona.' },
-            { isbn: 9781401308827, email: 'joao@email.com', nota: 4, curtidas: 8, titulo: 'Curioso', texto: 'Histórias de bar sempre rendem bons livros.' },
-            { isbn: 9781401308919, email: 'ana@email.com', nota: 2, curtidas: 4, titulo: 'Datado', texto: 'Falar de Blackberry hoje em dia é engraçado, mas o livro envelheceu mal.' },
-            { isbn: 9781401308940, email: 'mari@email.com', nota: 4, curtidas: 15, titulo: 'Profundo', texto: 'Um livro sensível sobre perdas.' },
-            { isbn: 9781401309268, email: 'ana@email.com', nota: 3, curtidas: 9, titulo: 'Gostei', texto: 'Uma boa ambientação.' },
-            { isbn: 9781401309312, email: 'mari@email.com', nota: 5, curtidas: 28, titulo: 'Rainha', texto: 'Livros sobre corações partidos são minha fraqueza.' },
-             // --- Finalizando a carga com reviews genéricas para o resto ---
-            { isbn: 9781401309336, email: 'beto@email.com', nota: 3, curtidas: 7, titulo: 'Interessante', texto: 'Uma biografia que vale a leitura.' },
-            { isbn: 9781401309473, email: 'fer@email.com', nota: 4, curtidas: 14, titulo: 'Tecnologia', texto: 'Bons pontos sobre o futuro da internet.' },
-            { isbn: 9781401309299, email: 'beto@email.com', nota: 5, curtidas: 40, titulo: 'Comunicação', texto: 'Essencial para quem trabalha com marketing.' }
         ];
 
+console.log(`📊 Processando ${reviewsData.length} resenhas...`);
+        
+        let contagemSucesso = 0;
+        let contagemDuplicada = 0;
+        let contagemErroLivro = 0;
+        let contagemErroUser = 0;
+
         for (const rev of reviewsData) {
-            // Lógica de proteção: Insere se o usuário ainda não comentou neste livro
+            // converter ISBN para string para garantir comparação correta
+            const isbnString = String(rev.isbn); 
+
+            // 1. VERIFICAÇÃO PRÉVIA: O Livro existe?
+            // Se o livro não estiver no banco, o insert falha. Vamos avisar qual é.
+            const checkLivro = await client.query('SELECT 1 FROM livro WHERE livro_isbn = $1', [isbnString]);
+            
+            if (checkLivro.rowCount === 0) {
+                console.log(`❌ ERRO: Livro não encontrado no banco!`);
+                console.log(`   -> ISBN: ${rev.isbn}`);
+                console.log(`   -> Título Resenha: ${rev.titulo}`);
+                contagemErroLivro++;
+                continue; // Pula para a próxima resenha
+            }
+
+            // 2. VERIFICAÇÃO PRÉVIA: O Usuário existe?
+            const checkUser = await client.query('SELECT usuario_id FROM usuario WHERE usuario_email = $1', [rev.email]);
+            
+            if (checkUser.rowCount === 0) {
+                console.log(`❌ ERRO: Usuário não encontrado! Email: ${rev.email}`);
+                contagemErroUser++;
+                continue;
+            }
+
+            // 3. TENTATIVA DE INSERÇÃO
+            // Usamos a lógica de "Inserir se não existir"
             const query = `
                 INSERT INTO resenha (resenha_titulo, resenha_texto, resenha_nota, resenha_curtidas, usuario_id, livro_isbn)
                 SELECT $1, $2, $3, $4, u.usuario_id, $5
@@ -307,62 +386,55 @@ async function povoarBancoComDadosFicticios(pool) {
                 );
             `;
 
-            await client.query(query, [rev.titulo, rev.texto, rev.nota, rev.curtidas, rev.isbn, rev.email]);
+            try {
+                const res = await client.query(query, [rev.titulo, rev.texto, rev.nota, rev.curtidas, isbnString, rev.email]);
+                
+                // O Postgres retorna 'rowCount' = 1 se inseriu, 0 se não fez nada (caiu no NOT EXISTS)
+                if (res.rowCount > 0) {
+                    contagemSucesso++;
+                    // Opcional: console.log(`✅ Inserida: ${rev.titulo}`);
+                } else {
+                    contagemDuplicada++;
+                    // Opcional: console.log(`⚠️ Já existe (Ignorada): ${rev.titulo}`);
+                }
+
+            } catch (err) {
+                console.error(`🔥 ERRO CRÍTICO ao inserir resenha do livro ${rev.isbn}:`, err.message);
+            }
         }
+
+        console.log("\n================ RELATÓRIO FINAL ================")
+        console.log(`🟢 Sucesso (Novas): ${contagemSucesso}`);
+        console.log(`🟡 Ignoradas (Já existiam): ${contagemDuplicada}`);
+        console.log(`🔴 Falha (Livro não existe no Banco): ${contagemErroLivro}`);
+        console.log(`🔴 Falha (Usuário não existe): ${contagemErroUser}`);
+        console.log("=================================================\n");
         
-        console.log("✅ Resenhas Manuais (Curadas) inseridas com sucesso!");
-
-
-// 3. CRIAR LISTAS PERSONALIZADAS - COM PROTEÇÃO CONTRA DUPLICIDADE
-        console.log("📚 Verificando listas...");
-
-        // Lista 1: Mestre do Terror
-        const listaTerror = `
+        // 3. RECRIAR LISTAS DE EXEMPLO (Para a demo)
+        console.log("📚 Criando listas personalizadas...");
+        
+        // Lista Terror (Sofi)
+        await client.query(`
             INSERT INTO listas_personalizadas (criador_lista, nome_lista, descricao_lista, isbn_livros)
-            SELECT u.usuario_id, 'Mestres do Terror', 'Minha coleção favorita do Stephen King. Só para quem tem coragem!', 
-            ARRAY[9788560280940, 9788581050485, 9788581052144, 9788581050362, 9788581050454, 9788556510334]::BIGINT[]
-            FROM usuario u WHERE u.usuario_email = 'lucas@email.com'
-            AND NOT EXISTS (
-                SELECT 1 FROM listas_personalizadas l 
-                WHERE l.criador_lista = u.usuario_id 
-                AND l.nome_lista = 'Mestres do Terror'
-            );
-        `;
-        await client.query(listaTerror);
+            SELECT usuario_id, 'Terror King', 'O mestre do horror.', 
+            ARRAY[9788581050485, 9788581052144, 9788560280940, 9788581050362]::BIGINT[]
+            FROM usuario WHERE usuario_email = 'sofi_suspense'
+            ON CONFLICT DO NOTHING;
+        `);
 
-        // Lista 2: Para chorar
-        const listaRomance = `
+        // Lista Fantasia (Pedro)
+        await client.query(`
             INSERT INTO listas_personalizadas (criador_lista, nome_lista, descricao_lista, isbn_livros)
-            SELECT u.usuario_id, 'Para chorar no domingo', 'Livros emocionantes para ler com uma caixa de chocolate.', 
-            ARRAY[9781401309169, 9781401308582, 9780008762278]::BIGINT[]
-            FROM usuario u WHERE u.usuario_email = 'mari@email.com'
-            AND NOT EXISTS (
-                SELECT 1 FROM listas_personalizadas l 
-                WHERE l.criador_lista = u.usuario_id 
-                AND l.nome_lista = 'Para chorar no domingo'
-            );
-        `;
-        await client.query(listaRomance);
+            SELECT usuario_id, 'Mundos Mágicos', 'Harry Potter e Percy Jackson.', 
+            ARRAY[9789722365543, 9788532530790, 9788532530806, 9788598078397]::BIGINT[]
+            FROM usuario WHERE usuario_email = 'pedro_hpat'
+            ON CONFLICT DO NOTHING;
+        `);
 
-         // Lista 3: Fantasia
-         const listaFantasia = `
-            INSERT INTO listas_personalizadas (criador_lista, nome_lista, descricao_lista, isbn_livros)
-            SELECT u.usuario_id, 'Mundos Fantásticos', 'Espadas, feitiçaria e jornadas longas.', 
-            ARRAY[9780553381689, 9788580573619, 9782290019436]::BIGINT[]
-            FROM usuario u WHERE u.usuario_email = 'fer@email.com'
-            AND NOT EXISTS (
-                SELECT 1 FROM listas_personalizadas l 
-                WHERE l.criador_lista = u.usuario_id 
-                AND l.nome_lista = 'Mundos Fantásticos'
-            );
-        `;
-        await client.query(listaFantasia);
-
-        console.log("✅ Listas personalizadas verificadas.");
-        console.log("🏁 Povoamento concluído! O banco está pronto para o Hackathon.");
+        console.log("🏁 Banco 100% Povoado e Pronto!");
 
     } catch (err) {
-        console.error("Erro ao povoar banco:", err);
+        console.error("Erro fatal no povoamento:", err);
     } finally {
         client.release();
     }
@@ -633,29 +705,7 @@ async function obterOuCriarGeneroComClient(client, nome) {
 
 // Função inserirLivrosTabela corrigida
 async function inserirLivrosTabela(client) {
-    const isbns = [9782290019436, 9788960176751, 9782253176503, 9780008762278, 
-    9780263870770, 9780263929874, 9780373336036, 9781608181797, 
-    9781846175916, 9780553381689, 9788580573619, 9788957591055, 
-    9788535937473, 9788535924015, 9788581050485, 9788581052144, 
-    9788581050362, 9788581050454, 9788581050218, 9788539000166, 
-    9788539000753, 9788539000333, 9788581050546, 9788556510334, 
-    9786580210343, 9781401308582, 9781401308605, 9781401308612, 
-    9781401308629, 9781401308643, 9781401308650, 9781401308667, 
-    9781401308674, 9781401308681, 9781401308698, 9781401308704, 
-    9781401308711, 9781401308742, 9781401308797, 9781401308810, 
-    9781401308827, 9781401308841, 9781401308858, 9781401308872, 
-    9781401308896, 9781401308902, 9781401308919, 9781401308926, 
-    9781401308933, 9781401308940, 9781401308957, 9781401308964, 
-    9781401308971, 9781401308988, 9781401308995, 9781401309022, 
-    9781401309039, 9781401309046, 9781401309053, 9781401309060, 
-    9781401309077, 9781401309084, 9781401309091, 9781401309121, 
-    9781401309138, 9781401309145, 9781401309152, 9781401309169, 
-    9781401309206, 9781401309213, 9781401309220, 9781401309237, 
-    9781401309251, 9781401309268, 9781401309275, 9781401309299, 
-    9781401309312, 9781401309336, 9781401309343, 9781401309350, 
-    9781401309367, 9781401309374, 9781401309381, 9781401309411, 
-    9781401309428, 9781401309435, 9781401309442, 9781401309473, 
-    9781401309497
+    const isbns = [9780553573404, 9788960176751, 9782253176503, 9780008762278, 9780263870770, 9780263929874, 9780373336036, 9781608181797, 9781846175916, 9780553381689, 9788580573619, 9788957591055, 9788535937473, 9788535924015, 9788581050485, 9788581052144, 9788581050362, 9788581050454, 9788581050218, 9788539000166, 9788539000753, 9788539000333, 9788581050546, 9788556510334, 9786580210343, 9781401308582, 9781401308605, 9781401308612, 9781401308629, 9781401308643, 9781401308650, 9781401308667, 9781401308674, 9781401308681, 9781401308704, 9781401308711, 9781401308742, 9781401308797, 9781401308810, 9781401308841, 9781401308858, 9781401308872, 9781401308896, 9781401308902, 9781401308919, 9781401308926, 9781401308933, 9781401308940, 9781401308957, 9781401308964, 9781401308971, 9781401308988, 9781401308995, 9781401309022, 9781401309039, 9781401309046, 9781401309053, 9781401309060, 9781401309091, 9781401309121, 9781401309138, 9781401309145, 9781401309152, 9781401309169, 9781401309206, 9781401309213, 9781401309237, 9781401309251, 9781401309268, 9781401309275, 9781401309336, 9781401309381, 9781401309435, 9781401309442, 9781401309497, 9781417663200, 9780007582235, 9781101886045, 9780670520732, 9788415594482, 9788573266115, 9788542209334, 9788532530790, 9789895572700, 9788503009492, 9788598078397, 9788588781610, 8532512526, 9788551004449, 9786586064407, 9788532530806, 9789722365543, 9788532516220, 9788532519474, 9788532530424, 9789899096486, 9788501076601, 9786587034201, 9780786290215, 9788574482446, 9789898839510, 9789897545351, 9788576573135, 9788501071545, 9786580210008, 9788575421130, 9780224070966, 9787532766963, 9788579620560, 9788522005239, 9788580573015, 9781527225336, 9781471154638, 9788532520661, 9789722330107, 9788501110817, 9788581301723, 9788537817520, 9788587575012, 9788542217735,9788501014863, 9788501114181, 9788580574517, 9788581050393, 8520917674, 9788501068200, 9788539006205, 9780385907026, 9788560280940
     ];
 
     for (const isbn of isbns) {
@@ -941,7 +991,7 @@ app.get('/livros/populares', async (req, res) => {
             LEFT JOIN resenha r ON l.livro_isbn = r.livro_isbn
             GROUP BY l.livro_isbn
             ORDER BY media_nota DESC, total_resenhas DESC
-            LIMIT 20; 
+            LIMIT 80; 
         `;
         // LIMIT 20 para a home não ficar pesada
         const resultado = await pool.query(query);
@@ -952,30 +1002,86 @@ app.get('/livros/populares', async (req, res) => {
     }
 });
 
-// Rota de recomendação personalizada
-app.post('/livros/recomendados', async (req, res) => {
+app.post('/livros/recomendacao-inteligente', async (req, res) => {
     const { usuario_id } = req.body;
+    console.log(`🔍 [RECOMENDACAO] Solicitada para User ID: ${usuario_id}`);
 
     try {
-        const query = `
-            SELECT l.*, 
+        // 1. Tenta descobrir o perfil do usuário (O que ele deu nota alta)
+        const queryFavoritos = `
+            SELECT la.autor_id, lg.genero_id
+            FROM resenha r
+            LEFT JOIN livro_autor la ON r.livro_isbn = la.livro_isbn
+            LEFT JOIN livro_genero lg ON r.livro_isbn = lg.livro_isbn
+            WHERE r.usuario_id = $1 AND r.resenha_nota >= 4
+        `;
+        const favoritos = await pool.query(queryFavoritos, [usuario_id]);
+
+        const autoresIds = favoritos.rows.map(row => row.autor_id).filter(id => id != null);
+        const generosIds = favoritos.rows.map(row => row.genero_id).filter(id => id != null);
+
+        console.log(`   - Perfil: ${autoresIds.length} Autores e ${generosIds.length} Gêneros favoritos.`);
+
+        // 2. SE NÃO TEM PERFIL (CONTA NOVA), RETORNA POPULARES IMEDIATAMENTE
+        if (autoresIds.length === 0 && generosIds.length === 0) {
+            console.log("   -> Conta nova/Sem dados. Buscando Populares...");
+            
+            // Query segura com todos os campos no Group By
+            const populares = await pool.query(`
+                SELECT l.livro_isbn, l.livro_titulo, l.livro_capa, l.livro_ano, l.livro_sinopse,
+                       COALESCE(AVG(r.resenha_nota), 0) as media_nota
+                FROM livro l
+                LEFT JOIN resenha r ON l.livro_isbn = r.livro_isbn
+                GROUP BY l.livro_isbn, l.livro_titulo, l.livro_capa, l.livro_ano, l.livro_sinopse
+                ORDER BY media_nota DESC
+                LIMIT 20
+            `);
+            
+            console.log(`   -> Retornando ${populares.rows.length} livros populares.`);
+            return res.json({ tipo: 'populares', dados: populares.rows });
+        }
+
+        // 3. SE TEM PERFIL, BUSCA PERSONALIZADOS
+        const queryRecomendacao = `
+            SELECT DISTINCT l.livro_isbn, l.livro_titulo, l.livro_capa, l.livro_ano, l.livro_sinopse,
                    COALESCE(AVG(r.resenha_nota), 0) as media_nota
             FROM livro l
+            LEFT JOIN livro_autor la ON l.livro_isbn = la.livro_isbn
+            LEFT JOIN livro_genero lg ON l.livro_isbn = lg.livro_isbn
             LEFT JOIN resenha r ON l.livro_isbn = r.livro_isbn
-            WHERE l.livro_isbn NOT IN (
-                SELECT livro_isbn FROM resenha WHERE usuario_id = $1
+            WHERE (
+                (CARDINALITY($1::int[]) > 0 AND la.autor_id = ANY($1::int[])) 
+                OR 
+                (CARDINALITY($2::int[]) > 0 AND lg.genero_id = ANY($2::int[]))
             )
-            -- Opcional: Se tiver tabela de "Lidos", adicione aqui também para excluir
-            GROUP BY l.livro_isbn
+            AND l.livro_isbn NOT IN (SELECT livro_isbn FROM resenha WHERE usuario_id = $3)
+            GROUP BY l.livro_isbn, l.livro_titulo, l.livro_capa, l.livro_ano, l.livro_sinopse
             ORDER BY media_nota DESC
-            LIMIT 10;
+            LIMIT 20;
         `;
+
+        const recomendados = await pool.query(queryRecomendacao, [autoresIds, generosIds, usuario_id]);
         
-        const resultado = await pool.query(query, [usuario_id]);
-        res.json(resultado.rows);
+        // Se não achou personalizados (ex: já leu tudo), fallback para populares
+        if (recomendados.rows.length === 0) {
+            console.log("   -> Personalizados esgotados. Fallback para Populares.");
+            // Copia a mesma query de populares acima
+            const popularesFallback = await pool.query(`
+                SELECT l.livro_isbn, l.livro_titulo, l.livro_capa, l.livro_ano, l.livro_sinopse,
+                       COALESCE(AVG(r.resenha_nota), 0) as media_nota
+                FROM livro l
+                LEFT JOIN resenha r ON l.livro_isbn = r.livro_isbn
+                GROUP BY l.livro_isbn, l.livro_titulo, l.livro_capa, l.livro_ano, l.livro_sinopse
+                ORDER BY media_nota DESC LIMIT 20
+            `);
+            return res.json({ tipo: 'populares', dados: popularesFallback.rows });
+        }
+
+        res.json({ tipo: 'personalizado', dados: recomendados.rows });
+
     } catch (error) {
-        console.error('Erro ao gerar recomendações:', error);
-        res.status(500).json({ erro: 'Erro ao recomendar' });
+        console.error('❌ ERRO NO BACKEND DE RECOMENDAÇÃO:', error);
+        res.status(500).json({ erro: 'Erro no servidor' });
     }
 });
 

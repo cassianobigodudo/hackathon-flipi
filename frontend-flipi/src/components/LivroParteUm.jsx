@@ -1,179 +1,118 @@
 import { useContext, useEffect, useState } from "react"
 import "./LivroParteUm.css"
 import LivroParteDois from "./LivroParteDois"
-import EstrelasBtn from "./EstrelasBtn"
-import NavbarVertical from "./NavbarVertical"
-import { GlobalContext } from "../contexts/GlobalContext"
-import { useFetcher, useLocation, useNavigate } from "react-router-dom";
-import axios from "axios"
-import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
+function LivroParteUm({ livro }) {
 
-function LivroParteUm({ livro, indexResenha}) {
-
-    const {biblioteca, setLivroAcessado, livroAcessado} = useContext(GlobalContext);
-    const location = useLocation();
     const navigate = useNavigate();
-    const [tituloLivro, setTituloLivro] = useState('')
-    const [capa, setCapa] = useState('')
-    const [ano, setAno] = useState('')
-    const [sinopse, setSinopse] = useState('')
-    const [autor, setAutor] = useState('')
-    const [editora, setEditora] = useState('')
-    const [isbn, setIsbn] = useState('')
-    const [resenhaId, setResenhaId] = useState(2)
-    const [livros, setLivros] = useState([])
-    const [resenhas, setResenhas] = useState(false)
-    const { isbn: isbnDaUrl } = useParams();
-
-
-    const atualizarCatalogo = async () => {
-        try {
-            const response = await axios.get(`http://localhost:3000/livro`)
-            const dadosDoLivro = response?.data
-            setLivros(dadosDoLivro)
-            console.log('Livro que foi puxado pelo get: ', dadosDoLivro)
-        } catch (error) {
-            console.error('Erro ao puxar os livros:', error)
-        }
-    }
     
-    const pegarLivro = async (isbn) =>{
+    // Estado local para controlar a aba de resenhas
+    const [mostrarResenhas, setMostrarResenhas] = useState(false)
 
-        try {
-            console.log('Buscando livro com ISBN:', isbn)
-            const response = await axios.get(`http://localhost:3000/livro/${isbn}`)
-            
-            const dadosDoLivro = response?.data 
-            
-            setTituloLivro(dadosDoLivro.livro_titulo)
-            setSinopse(dadosDoLivro.livro_sinopse)
-            setCapa(dadosDoLivro.livro_capa)
-            setAno(dadosDoLivro.livro_ano)
-            setEditora(dadosDoLivro.editora?.editora_nome || '')
-            setAutor(dadosDoLivro.autor?.autor_nome || '')
-            setIsbn(dadosDoLivro.livro_isbn)
-            
-            console.log('Livro que foi puxado pelo get: ', dadosDoLivro)
-        } catch (error) {
-            console.error('Erro ao puxar o livro:', error)
-        }
-    }
+    // Se o livro não chegar (erro), não quebra a tela
+    if (!livro) return null;
 
-    function escrivaninha(){
-        navigate("/telaescrivaninha")
-    }
+    // Extrair dados com segurança
+    const { 
+        livro_titulo, 
+        livro_capa, 
+        livro_ano, 
+        livro_sinopse, 
+        livro_isbn,
+        autor, 
+        editora 
+    } = livro;
 
-    useEffect(() => {
-        atualizarCatalogo()
-    }, [])
-
-    // useEffect(() => {
-    //     if (livro != null) {
-    //         console.log('Livro recebido:', livro)
-            
-    //         if (livro.livro_isbn != null) {
-    //             pegarLivro(livro.livro_isbn)
-    //         } else {
-    //             setTituloLivro(livro.livro_titulo || '')
-    //             setCapa(livro.livro_capa || '')
-    //             setAno(livro.livro_ano || '')
-    //             setSinopse(livro.livro_sinopse || '')
-    //             setAutor(livro.autor?.autor_nome || '')
-    //             setEditora(livro.editora?.editora_nome || '')
-    //             setIsbn(livro.livro_isbn || '')
-    //         }
-    //     }
-    // }, [livro])
-    useEffect(() => {
-        if (livro) {
-            console.log('Livro recebido via prop:', livro);
-            setTituloLivro(livro.livro_titulo || '');
-            setCapa(livro.livro_capa || '');
-            setAno(livro.livro_ano || '');
-            setSinopse(livro.livro_sinopse || '');
-            setAutor(livro.autor?.autor_nome || '');
-            setEditora(livro.editora?.editora_nome || '');
-            setIsbn(livro.livro_isbn || '');
-        } else if (isbnDaUrl) {
-            console.log('Livro será buscado via URL (ISBN):', isbnDaUrl);
-            pegarLivro(isbnDaUrl);
-        }
-    }, [livro, isbnDaUrl]);
-    
+    // Tratamento para autor/editora que podem vir como objeto ou string dependendo da sua query
+    const nomeAutor = autor?.autor_nome || autor || "Desconhecido";
+    const nomeEditora = editora?.editora_nome || editora || "Desconhecida";
 
     return (
         <div>
             <div className="container-tela">
                 <div className="parte-cima">
+                    
+                    {/* CAPA E ESTRELAS */}
                     <div className="parte-capa-livro">
                         <div className="capa-livro">
-                            <img src={capa} alt="" className="imagem-capa-livro"/>
+                            {livro_capa ? (
+                                <img src={livro_capa} alt={livro_titulo} className="imagem-capa-livro"/>
+                            ) : (
+                                <div style={{width: '100%', height: '100%', background: '#ccc'}}></div>
+                            )}
                         </div>
+                        {/* Aqui entrariam as estrelas médias se tiver */}
                         <div className="parte-classificacao">
-                            <div className="estrelas-btn-livro">
-                            </div>        
+                             {/* Componente de estrelas opcional */}
                         </div>
                     </div>
 
+                    {/* TEXTOS E DETALHES */}
                     <div className="parte-textos">
                         <div className="textos">
                             <div className="titulo-livro">
-                                <h6 className="h3-tituloLivro">Título: {tituloLivro}</h6>
+                                <h6 className="h3-tituloLivro">{livro_titulo}</h6>
                             </div>
 
                             <div className="descricao-livro">
-                                <h6 className="h4-descricaoLivro">ISBN: {isbn}</h6>
+                                <h6 className="h4-descricaoLivro">ISBN: {livro_isbn}</h6>
                             </div>
 
                             <div className="descricao-livro">
-                                <h6>Autor/a: {autor} </h6>   <h6>Editora: {editora}</h6>
+                                <h6>Autor: {nomeAutor}</h6> 
+                                <span style={{margin: '0 10px'}}>|</span>
+                                <h6>Editora: {nomeEditora}</h6>
                             </div>
 
                             <div className="descricao-livro"> 
-                                <h6>Ano: {ano}</h6>
+                                <h6>Ano: {livro_ano}</h6>
                             </div>
 
                             <div className="sinopse-livro">
-                                <label className="lbl-sinopseLivro" htmlFor="">{sinopse}</label>
+                                <p className="lbl-sinopseLivro" style={{textAlign: 'justify'}}>
+                                    {livro_sinopse || "Sem sinopse disponível."}
+                                </p>
                             </div>
                         </div>
                     </div>
 
+                    {/* MENUS LATERAIS */}
                     <div className="parte-menus">
-                        <button onClick={() => {navigate("/telaprincipal")}} className="botao-menuUm"> 
-                            <img src="../public/icons/ant-design--home-outlined.svg" alt="" className="icone-botao"/> 
+                        <button onClick={() => navigate("/telaprincipal")} className="botao-menuUm" title="Home"> 
+                            <img src="../public/icons/ant-design--home-outlined.svg" alt="Home" className="icone-botao"/> 
                         </button>
                         
-                        <button onClick={escrivaninha} className="botao-menuDois">
-                            <img src="public/icons/escrita.png" alt="" className="icone-botao"/>
+                        {/* Botão Escrivaninha (Vai para criar resenha desse livro) */}
+                        <button 
+                            onClick={() => navigate("/telaescrivaninha", { state: { livroSelecionado: livro } })} 
+                            className="botao-menuDois"
+                            title="Escrever Resenha"
+                        >
+                            <img src="public/icons/escrita.png" alt="Escrever" className="icone-botao"/>
                         </button>
 
-                        <button onClick={() => {navigate("/telausuarioconfigs")}} className="botao-menuTres">
-                            <img src="./public/images/setting.svg" alt="" className="icone-botao"/> 
+                        <button onClick={() => navigate("/telausuarioconfigs")} className="botao-menuTres" title="Configurações">
+                            <img src="./public/images/setting.svg" alt="Config" className="icone-botao"/> 
                         </button>
                     </div>
                 </div>
 
+                {/* BOTÃO EXPANDIR RESENHAS */}
                 <div className="parte-baixo">
-                    <button className="botao-resenha">Resenhas |  </button>
-                    <button className="botao-icone" onClick={ () => setResenhas(!resenhas)}>
-                        <img src="./images/down.png" alt="" className="icone-down"/>
-                    </button> 
+                    <button 
+                        className="botao-resenha" 
+                        onClick={() => setMostrarResenhas(!mostrarResenhas)}
+                    >
+                        {mostrarResenhas ? "Ocultar Resenhas ▲" : "Ver Resenhas da Comunidade ▼"}
+                    </button>
                 </div>
 
+                {/* COMPONENTE DE RESENHAS (PARTE DOIS) */}
                 <div className="container-parte-resenhas">
-                    {/* {resenhas && <LivroParteDois livroSelecionado={livro} resenhaInd={indexResenha}/>}  */}
-                    {resenhas && <LivroParteDois livroSelecionado={{
-                        livro_titulo: tituloLivro,
-                        livro_isbn: isbn,
-                        livro_ano: ano,
-                        livro_sinopse: sinopse,
-                        livro_capa: capa,
-                        autor: { autor_nome: autor },
-                        editora: { editora_nome: editora }
-                    }} resenhaInd={indexResenha} />}
-
+                    {mostrarResenhas && (
+                        <LivroParteDois livroSelecionado={livro} />
+                    )}
                 </div>
             </div>
         </div>

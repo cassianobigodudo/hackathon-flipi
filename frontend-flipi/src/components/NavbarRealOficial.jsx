@@ -7,6 +7,8 @@ import { GiNotebook } from "react-icons/gi";
 import { AiOutlineHome } from "react-icons/ai";
 import { HiOutlineCog } from "react-icons/hi";
 import { Link, useNavigate } from "react-router-dom"
+import { PiBookOpenUserBold } from "react-icons/pi";
+
 
 
 
@@ -25,6 +27,7 @@ function NavbarRealOficial() {
 
         <button onClick={() => {navigate("/telausuarioconfigs")}} className="botao-navbar"><HiOutlineCog className='icons-navbar' /> </button>
       
+        <button onClick={() => {navigate("/recomendacoes")}} className="botao-navbar"><PiBookOpenUserBold className='icons-navbar' /> </button>
     </div>
   )
 } 

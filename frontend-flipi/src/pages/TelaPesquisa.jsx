@@ -46,7 +46,7 @@ function TelaPesquisa() {
             </div>
 
             <div className="folha-direita">
-              <div className="vazio-pagina-direita"></div>
+              <div className="vazio-pagina-direita-extra"></div>
               <ContainerDosLivrosPesquisados
               lado='direito'
               paginaAtual={paginaAtual}
