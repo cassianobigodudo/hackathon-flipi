@@ -1,4 +1,26 @@
 /* --- ESTRUTURA DO LIVRO (Igual ao que você mandou) --- */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+
 .container-principal {
     height: 100vh;
     display: flex;
@@ -16,6 +38,7 @@
     background-color: #eddbb3;
     border-radius: 10px;
     box-shadow: 10px 10px 30px rgba(0,0,0,0.3); /* Adicionei sombra para realismo */
+    
 }
 
 .capa-fundo-livro-dois {
@@ -124,6 +147,10 @@
     flex-direction: column;
     align-items: center;
     margin-bottom: 15px;
+    
+  animation: fadeIn 0.5s ease-in-out;
+  
+  animation: slideInLeft 1s ease-in-out;
 }
 
 .btn-capa-livro {
@@ -135,7 +162,8 @@
 }
 
 .btn-capa-livro:hover {
-    transform: scale(1.08); /* Efeito "Pop" ao passar o mouse */
+    transform: scale(1.02)
+    translateY(-5%); /* Efeito "Pop" ao passar o mouse */
 }
 
 .img-capa-home {

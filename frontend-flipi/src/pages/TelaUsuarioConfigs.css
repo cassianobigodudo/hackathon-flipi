@@ -340,7 +340,7 @@
     background-color: #f4e2b4;
     width: 109%;
     border-radius: 10px;
-    resize: "none" 
+    resize: none;
 }
 .campo-descricao{
     height: 10%;
