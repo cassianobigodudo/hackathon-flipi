@@ -1,72 +1,62 @@
-
-//atualização - JAIME
 import { useState, useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import LivroParteUm from "../components/LivroParteUm";
-import Navbar from "../components/Navbar"
 import axios from "axios";
 import "./TelaLivro.css";
 
 function TelaLivro() {
-  const [livros, setLivros] = useState([]);
   const [livroSelecionado, setLivroSelecionado] = useState(null);
-  const [resenhaInd, setResenhaInd] = useState(null);
-
   const location = useLocation();
-  const { isbn } = useParams();
-
-  const atualizarCatalogo = async () => {
-    try {
-      const response = await axios.get("http://localhost:3000/livro");
-      setLivros(response.data);
-      console.log("Catálogo atualizado:", response.data);
-    } catch (error) {
-      console.error("Erro ao buscar catálogo:", error);
-    }
-  };
-
-  const buscarLivroPorIsbn = async (isbn) => {
-    try {
-      const response = await axios.get(`http://localhost:3000/livro/${isbn}`);
-      setLivroSelecionado(response.data);
-      setResenhaInd(1); // Ou alguma lógica baseada no livro
-    } catch (error) {
-      console.error("Erro ao buscar livro por ISBN:", error);
-    }
-  };
-
-  const selecionarLivroPorIndex = (index) => {
-    const livro = livros[index];
-    if (livro) {
-      setLivroSelecionado(livro);
-      setResenhaInd(index + 1);
-    } else {
-      console.warn("Livro não encontrado para o index:", index);
-    }
-  };
+  const { isbn } = useParams(); // Se a rota for /telalivro/:isbn
 
   useEffect(() => {
-    atualizarCatalogo();
-  }, []);
-
-  useEffect(() => {
-    // Espera o catálogo carregar antes de tentar selecionar
-    if (livros.length > 0) {
-      if (isbn) {
-        buscarLivroPorIsbn(isbn); // se a URL tem ISBN
-      } else if (location.state?.index != null) {
-        selecionarLivroPorIndex(location.state.index); // se veio via state
-      } else {
-        console.warn("Nenhum parâmetro de navegação foi passado.");
+    const carregarLivro = async () => {
+      
+      // 1. Tenta pegar o livro direto do estado da navegação (Home/Pesquisa/Landing)
+      // É o jeito mais rápido, pois não precisa de nova requisição
+      if (location.state?.livroData) {
+        console.log("Livro carregado via State:", location.state.livroData);
+        setLivroSelecionado(location.state.livroData);
+        return;
       }
-    }
-  }, [isbn, location.state, livros]);
+
+      // 2. Se não veio no state, tenta buscar pelo ISBN na URL (caso use rota dinâmica)
+      if (isbn) {
+        try {
+          console.log("Buscando livro por ISBN na URL:", isbn);
+          const response = await axios.get(`http://localhost:3000/livro/${isbn}`);
+          setLivroSelecionado(response.data);
+        } catch (error) {
+          console.error("Erro ao buscar livro por ISBN:", error);
+        }
+        return;
+      }
+
+      // 3. Fallback legado (Index) - Mantive só por compatibilidade
+      if (location.state?.index !== undefined) {
+         // Se o sistema antigo passar index, teríamos que buscar todos os livros pra achar...
+         // Mas como migramos para passar o objeto, isso deve ser raro.
+         console.warn("Navegação por index é depreciada. Use o objeto do livro.");
+      }
+    };
+
+    carregarLivro();
+  }, [location.state, isbn]);
+
+  if (!livroSelecionado) {
+      return (
+          <div className="container-mae" style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+              <h2>Carregando detalhes do livro...</h2>
+          </div>
+      )
+  }
 
   return (
     <div className="container-mae">
-      <LivroParteUm livro={livroSelecionado} indexResenha={resenhaInd} />
+      {/* Passamos o livro selecionado para o componente filho */}
+      <LivroParteUm livro={livroSelecionado} />
     </div>
   );
 }
 
-export default TelaLivro
+export default TelaLivro;

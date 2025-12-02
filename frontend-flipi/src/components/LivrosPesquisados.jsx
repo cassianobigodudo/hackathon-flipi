@@ -1,25 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './LivrosPesquisados.css';
 import { MdOutlineContentCopy } from "react-icons/md";
+import { useNavigate } from 'react-router-dom'; // 1. IMPORTAR ISSO
 
 function LivrosPesquisados({ livro }) {
+  
+  const navigate = useNavigate(); // 2. INICIAR O HOOK
   
   const [switchClassName, setSwitchClassName] = useState('isbn-botao-container');
   const [switchLabel, setSwitchLabel] = useState('ISBN');
   
-  // Criar uma referência para o elemento que queremos adicionar o evento de scroll
   const tituloRef = useRef(null);
-// 
-  // useEffect(() => (
-  //   BuscarAutor()
-  // ), [])
 
-  // async function BuscarAutor(){
-
-  //   await axios.get()
-
-  // }
-  
   function SwitchISBN() {
     if(switchLabel === 'ISBN') {
       setSwitchLabel(`ISBN: ${livro.livro_isbn}`);
@@ -34,28 +26,23 @@ function LivrosPesquisados({ livro }) {
     }
   }
   
-  // Usar useEffect para adicionar o event listener depois que o componente for montado
   useEffect(() => {
     const container = tituloRef.current;
     
     if (container) {
       const handleWheel = (event) => {
-        // Force sempre rolar horizontalmente, independente de shift
         event.preventDefault();
-        
-        // Ajuste a velocidade do scroll conforme necessário
-        const scrollSpeed = 0.8; // Aumentar para scroll mais rápido
+        const scrollSpeed = 0.8;
         container.scrollLeft += event.deltaY * scrollSpeed;
       };
       
       container.addEventListener('wheel', handleWheel, { passive: false });
       
-      // Limpar o event listener quando o componente for desmontado
       return () => {
         container.removeEventListener('wheel', handleWheel);
       };
     }
-  }, []); // Array vazio significa que este efeito só executa uma vez após a montagem inicial
+  }, []);
 
   return (
     <div className="livro-unidade-pesquisado">
@@ -73,7 +60,14 @@ function LivrosPesquisados({ livro }) {
 
         <div className="pesquisado-container">
             <div className="livro-capa-container">
-              <img src={livro.livro_capa} className='img-livro-pesquisado' alt={`Capa do livro ${livro.livro_titulo}`} />
+              {/* 3. ADICIONADO O ONCLICK E O CURSOR POINTER NA IMAGEM */}
+              <img 
+                src={livro.livro_capa} 
+                className='img-livro-pesquisado' 
+                alt={`Capa do livro ${livro.livro_titulo}`}
+                onClick={() => navigate("/telalivro", { state: { livroData: livro } })}
+                style={{ cursor: 'pointer' }} 
+              />
             </div>
 
             <div className="livro-info-container">
@@ -83,7 +77,7 @@ function LivrosPesquisados({ livro }) {
                   </div>
 
                   <div className="autor-ano-pesquisado">
-                    <label className='lbl-autor'>Autor: {livro.autores || 'Não informado'}</label>
+                    <label className='lbl-autor'>Autor: {livro.autor?.autor_nome || livro.autores || 'Não informado'}</label>
                     <label className='lbl-ano'>Ano: {livro.livro_ano}</label>
                   </div>
                 </div>
