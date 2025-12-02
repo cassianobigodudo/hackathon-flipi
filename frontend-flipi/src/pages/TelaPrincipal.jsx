@@ -1,319 +1,127 @@
-import React, { useContext, useEffect, useState } from 'react'
-import './TelaPrincipal.css'
-import { Link, useNavigate } from "react-router-dom"
-import Navbar from '../components/Navbar'
+import React, { useEffect, useState, useContext } from 'react'
+import './TelaPrincipal.css' // Vamos usar o CSS padronizado abaixo
+import { useNavigate } from "react-router-dom"
 import { GlobalContext } from '../contexts/GlobalContext'
-import BarraPesquisa from '../components/BarraPesquisa'
+import NavbarRealOficial from '../components/NavbarRealOficial'
 import axios from 'axios'
 
-
 function TelaPrincipal() {
-    const { posicaoUsuarioID, setPosicaoUsuarioID, vetorObjetosUsuarios, usuarioLogado, dadosUsuarioLogado, setDadosUsuarioLogado, idUsuarioLogado } = useContext(GlobalContext)
-    const { biblioteca } = useContext(GlobalContext)
-    const [livros, setLivros] = useState([])
-
+    const { dadosUsuarioLogado } = useContext(GlobalContext)
+    const [livrosPopulares, setLivrosPopulares] = useState([])
     const navigate = useNavigate()
 
-
-    const atualizarCatalogo = async () => {
-        try {
-            const response = await axios.get(`http://localhost:3000/livro`)
-            const dadosDoLivro = response?.data
-            setLivros(dadosDoLivro)
-            console.log('Livro que foi puxado pelo get: ', dadosDoLivro)
-        } catch (error) {
-            console.error('Erro ao puxar os livros:', error)
-        }
-    }
-
-
-    useEffect (() => {
-        // console.log(vetorObjetosUsuarios)
-
-        if (usuarioLogado === true) {
-            for (let i = 0; i < vetorObjetosUsuarios.length; i++) {
-                if (vetorObjetosUsuarios[i].usuario_id === posicaoUsuarioID) {
-                    setPosicaoUsuarioID(vetorObjetosUsuarios[i].usuario_id)
-                    let ul = vetorObjetosUsuarios.filter((u) => u.usuario_id === posicaoUsuarioID)
-                    setDadosUsuarioLogado(ul[0])
-                }
+    // 1. Busca os livros populares ao carregar a página
+    useEffect(() => {
+        const buscarPopulares = async () => {
+            try {
+                // Chama a rota que criamos no backend ordenando por nota
+                const response = await axios.get('http://localhost:3000/livros/populares')
+                setLivrosPopulares(response.data)
+            } catch (error) {
+                console.error("Erro ao buscar livros populares:", error)
             }
         }
-        atualizarCatalogo()
+        buscarPopulares()
     }, [])
 
-    const getLivroByIndex = (index) => {
-        return livros[index] || { livro_titulo: 'Carregando...', livro_capa: '' }
-    }
+    // 2. Divide os livros entre página Esquerda e Direita
+    // Vamos supor que cabem 6 ou 8 livros por página. Ajuste o slice conforme o tamanho da sua tela.
+    const livrosEsquerda = livrosPopulares.slice(0, 10) 
+    const livrosDireita = livrosPopulares.slice(10, 20)
 
-    useEffect(() => {
-        console.log(posicaoUsuarioID)
-
-      }, [posicaoUsuarioID])
-
-      useEffect (() => {
-
-        // console.log(dadosUsuarioLogado)
-
-      }, [dadosUsuarioLogado])
-
-    useEffect(() => {
-        // console.log(dadosUsuarioLogado)
-    }, [dadosUsuarioLogado])
+    // 3. Função para renderizar cada card (O .map vai usar isso)
+    const renderCardLivro = (livro) => (
+        <div className="card-livro-home" key={livro.livro_isbn}>
+            <button 
+                className="btn-capa-livro" 
+                onClick={() => navigate("/telalivro", { state: { livroData: livro } })}
+            >
+                {livro.livro_capa ? (
+                    <img src={livro.livro_capa} alt={livro.livro_titulo} className="img-capa-home" />
+                ) : (
+                    <div className="placeholder-capa"></div>
+                )}
+            </button>
+            <p className="titulo-livro-home">
+                {livro.livro_titulo.length > 25 ? livro.livro_titulo.substring(0, 25) + '...' : livro.livro_titulo}
+            </p>
+            <div className="estrelas-home">
+                {'★'.repeat(Math.round(livro.media_nota || 0))} 
+                <span style={{color: '#ccc'}}>{'★'.repeat(5 - Math.round(livro.media_nota || 0))}</span>
+            </div>
+        </div>
+    )
 
     return (
-
-        <div className='container-tela-principal'>
-            <div className='retangulo-um'>
-                <div className='retangulo-dois'>
-                    <div className='retangulo-tres'>
-                        <div className='div-espaco-vazio'>
+        <div className='container-principal'>
+            {/* --- ESTRUTURA DO LIVRO (FUNDO) --- */}
+            <div className="capa-fundo-livro-um">
+                <div className="capa-fundo-livro-dois">
+                    <div className="capa-fundo-livro-tres">
+                        
+                        {/* 1. NAVBAR LATERAL (Marcador de página) */}
+                        <div className="navbar-container">
+                            <NavbarRealOficial/>
                         </div>
 
-                        <div className="div-livros-esquerda">
-                            <div className="div-barra-de-pesquisa">
+                        {/* 2. FOLHA ESQUERDA */}
+                        <div className="folha-esquerda">
+                            
+                            {/* Cabeçalho da Página Esquerda */}
+                            <div className="header-pagina">
+                                <h2 className="titulo-destaque">🔥 Mais Populares</h2>
+                                {/* Barra de Pesquisa "Fake" que leva para a tela de pesquisa real */}
+                                <div className="barra-pesquisa-home">
+                                    <input 
+                                        type="text" 
+                                        placeholder="Pesquise um livro..." 
+                                        onFocus={() => navigate('/telapesquisa')} // Ao clicar, vai pra pesquisa
+                                    />
+                                    <img src="/icons/big-search-len.png" alt="buscar" className="icon-search"/>
+                                </div>
+                            </div>
 
-                                <input className='inpt-pesquisa' type="text" placeholder='Pesquise um livro em específico' />
-                                <button className="btn-pesquisar" onClick={() => navigate("/telapesquisa")}>
-                                    <img className='icons-pesquisar' src="public/icons/big-search-len.png" alt="" />
+                            {/* --- MAP DOS LIVROS (LADO ESQUERDO) --- */}
+                            <div className="grid-livros">
+                                {livrosEsquerda.length > 0 ? (
+                                    livrosEsquerda.map((livro) => renderCardLivro(livro))
+                                ) : (
+                                    <p>Carregando catálogo...</p>
+                                )}
+                            </div>
+
+                            {/* Botão de Recomendação (Destaque) */}
+                            {dadosUsuarioLogado && (
+                                <button className="btn-recomendacao-float" onClick={() => navigate('/recomendacoes')}>
+                                    Ver recomendações para mim ➜
                                 </button>
+                            )}
+                        </div>
 
+                        {/* 3. FOLHA DIREITA */}
+                        <div className="folha-direita">
+                            <div className="vazio-topo-direita"></div> {/* Espaço para alinhar */}
+                            
+                            {/* --- MAP DOS LIVROS (LADO DIREITO) --- */}
+                            <div className="grid-livros">
+                                {livrosDireita.map((livro) => renderCardLivro(livro))}
                             </div>
 
-                            <div className="div-Fila-livros">
-                                <div className="div-box-titulo">
-                                    <button className="btn-livro-home" onClick={() => navigate("/telalivro", { state: { index: 0 } })}>
-                                        {getLivroByIndex(0).livro_capa ? (
-                                            <img src={getLivroByIndex(0).livro_capa} alt="" />
-                                        ) : (
-                                            <div className="box-placeholder"></div>
-                                        )}
-                                        <p className='titulos-livros'>{getLivroByIndex(0).livro_titulo}</p>
-                                    </button>
-                                </div>
-
-                                <div className="div-box-titulo">
-                                    <button className="btn-livro-home" onClick={() => navigate("/telalivro", { state: { index: 1 } })}>
-                                        {getLivroByIndex(1).livro_capa ? (
-                                            <img src={getLivroByIndex(1).livro_capa} alt="" />
-                                        ) : (
-                                            <div className="box-placeholder"></div>
-                                        )}
-                                        <p className='titulos-livros'>{getLivroByIndex(1).livro_titulo}</p>
-                                    </button>
-                                </div>
-
-                                <div className="div-box-titulo">
-                                    <button className="btn-livro-home" onClick={() => navigate("/telalivro", { state: { index: 2 } })}>
-                                        {getLivroByIndex(2).livro_capa ? (
-                                            <img src={getLivroByIndex(2).livro_capa} alt="" />
-                                        ) : (
-                                            <div className="box-placeholder"></div>
-                                        )}
-                                        <p className='titulos-livros'>{getLivroByIndex(2).livro_titulo}</p>
-                                    </button>
-                                </div>
-
-                                <div className="div-box-titulo">
-                                    <button className="btn-livro-home" onClick={() => navigate("/telalivro", { state: { index: 3 } })}>
-                                        {getLivroByIndex(3).livro_capa ? (
-                                            <img src={getLivroByIndex(3).livro_capa} alt="" />
-                                        ) : (
-                                            <div className="box-placeholder"></div>
-                                        )}
-                                        <p className='titulos-livros'>{getLivroByIndex(3).livro_titulo}</p>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="div-Fila-livros">
-                                <div className="div-box-titulo">
-                                    <button className="btn-livro-home" onClick={() => navigate("/telalivro", { state: { index: 4 } })}>
-                                        {getLivroByIndex(4).livro_capa ? (
-                                            <img src={getLivroByIndex(4).livro_capa} alt="" />
-                                        ) : (
-                                            <div className="box-placeholder"></div>
-                                        )}
-                                        <p className='titulos-livros'>{getLivroByIndex(4).livro_titulo}</p>
-                                    </button>
-                                </div>
-
-                                <div className="div-box-titulo">
-                                    <button className="btn-livro-home" onClick={() => navigate("/telalivro", { state: { index: 5 } })}>
-                                        {getLivroByIndex(5).livro_capa ? (
-                                            <img src={getLivroByIndex(5).livro_capa} alt="" />
-                                        ) : (
-                                            <div className="box-placeholder"></div>
-                                        )}
-                                        <p className='titulos-livros'>{getLivroByIndex(5).livro_titulo}</p>
-                                    </button>
-                                </div>
-
-                                <div className="div-box-titulo">
-                                    <button className="btn-livro-home" onClick={() => navigate("/telalivro", { state: { index: 6 } })}>
-                                        {getLivroByIndex(6).livro_capa ? (
-                                            <img src={getLivroByIndex(6).livro_capa} alt="" />
-                                        ) : (
-                                            <div className="box-placeholder"></div>
-                                        )}
-                                        <p className='titulos-livros'>{getLivroByIndex(6).livro_titulo}</p>
-                                    </button>
-                                </div>
-
-                                <div className="div-box-titulo">
-                                    <button className="btn-livro-home" onClick={() => navigate("/telalivro", { state: { index: 7 } })}>
-                                        {getLivroByIndex(7).livro_capa ? (
-                                            <img src={getLivroByIndex(7).livro_capa} alt="" />
-                                        ) : (
-                                            <div className="box-placeholder"></div>
-                                        )}
-                                        <p className='titulos-livros'>{getLivroByIndex(7).livro_titulo}</p>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="div-contatos">
-                                <div className="div-divisao-um"></div>
-                                <div className="div-divisao-dois"></div>
-                                <button className="btn-contacts">Contact Us</button>
+                            {/* Paginação (Next Page) */}
+                            <div className="rodape-direita">
+                                <span className="numero-pagina">1</span>
+                                <button className="btn-proxima-pagina">Próxima ➜</button>
                             </div>
                         </div>
 
-                        <div className="div-livros-direita">
-                            <div className="div-barra-de-pesquisa">
-                            </div>
+                        {/* 4. BORDA DIREITA (Vazio) */}
+                        <div className="vazio-direita"></div>
 
-                            <div className="div-Fila-livros">
-                                <div className="div-box-titulo">
-                                    <button className="btn-livro-home" onClick={() => navigate("/telalivro", { state: { index: 8 } })}>
-                                        {getLivroByIndex(8).livro_capa ? (
-                                            <img src={getLivroByIndex(8).livro_capa} alt="" />
-                                        ) : (
-                                            <div className="box-placeholder"></div>
-                                        )}
-                                        <p className='titulos-livros'>{getLivroByIndex(8).livro_titulo}</p>
-                                    </button>
-                                </div>
-
-                                <div className="div-box-titulo">
-                                    <button className="btn-livro-home" onClick={() => navigate("/telalivro", { state: { index: 9 } })}>
-                                        {getLivroByIndex(9).livro_capa ? (
-                                            <img src={getLivroByIndex(9).livro_capa} alt="" />
-                                        ) : (
-                                            <div className="box-placeholder"></div>
-                                        )}
-                                        <p className='titulos-livros'>{getLivroByIndex(9).livro_titulo}</p>
-                                    </button>
-                                </div>
-
-                                <div className="div-box-titulo">
-                                    <button className="btn-livro-home" onClick={() => navigate("/telalivro", { state: { index: 10 } })}>
-                                        {getLivroByIndex(10).livro_capa ? (
-                                            <img src={getLivroByIndex(10).livro_capa} alt="" />
-                                        ) : (
-                                            <div className="box-placeholder"></div>
-                                        )}
-                                        <p className='titulos-livros'>{getLivroByIndex(10).livro_titulo}</p>
-                                    </button>
-                                </div>
-
-                                <div className="div-box-titulo">
-                                    <button className="btn-livro-home" onClick={() => navigate("/telalivro", { state: { index: 11 } })}>
-                                        {getLivroByIndex(11).livro_capa ? (
-                                            <img src={getLivroByIndex(11).livro_capa} alt="" />
-                                        ) : (
-                                            <div className="box-placeholder"></div>
-                                        )}
-                                        <p className='titulos-livros'>{getLivroByIndex(11).livro_titulo}</p>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="div-Fila-livros">
-                                <div className="div-box-titulo">
-                                    <button className="btn-livro-home" onClick={() => navigate("/telalivro", { state: { index: 12 } })}>
-                                        {getLivroByIndex(12).livro_capa ? (
-                                            <img src={getLivroByIndex(12).livro_capa} alt="" />
-                                        ) : (
-                                            <div className="box-placeholder"></div>
-                                        )}
-                                        <p className='titulos-livros'>{getLivroByIndex(12).livro_titulo}</p>
-                                    </button>
-                                </div>
-
-                                <div className="div-box-titulo">
-                                    <button className="btn-livro-home" onClick={() => navigate("/telalivro", { state: { index: 13 } })}>
-                                        {getLivroByIndex(13).livro_capa ? (
-                                            <img src={getLivroByIndex(13).livro_capa} alt="" />
-                                        ) : (
-                                            <div className="box-placeholder"></div>
-                                        )}
-                                        <p className='titulos-livros'>{getLivroByIndex(13).livro_titulo}</p>
-                                    </button>
-                                </div>
-
-                                <div className="div-box-titulo">
-                                    <button className="btn-livro-home" onClick={() => navigate("/telalivro", { state: { index: 14 } })}>
-                                        {getLivroByIndex(14).livro_capa ? (
-                                            <img src={getLivroByIndex(14).livro_capa} alt="" />
-                                        ) : (
-                                            <div className="box-placeholder"></div>
-                                        )}
-                                        <p className='titulos-livros'>{getLivroByIndex(14).livro_titulo}</p>
-                                    </button>
-                                </div>
-
-                                <div className="div-box-titulo">
-                                    <button className="btn-livro-home" onClick={() => navigate("/telalivro", { state: { index: 15 } })}>
-                                        {getLivroByIndex(15).livro_capa ? (
-                                            <img src={getLivroByIndex(15).livro_capa} alt="" />
-                                        ) : (
-                                            <div className="box-placeholder"></div>
-                                        )}
-                                        <p className='titulos-livros'>{getLivroByIndex(15).livro_titulo}</p>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="div-next-page">
-                                <div className="div-divisao-um"></div>
-                                <div className="div-divisao-dois"></div>
-                                <div className="div-label-next-page">
-                                    <button className='btn-next-page' onClick={() => { console.log(posicaoUsuarioID) }}>Next Page</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="div-elementos">
-                            <div className="div-home-escrivaninha">
-                                <Link to="/telaprincipal">
-
-                                    <button className="btnss">
-                                        <img src="../public/icons/ant-design--home-outlined.svg" alt="" className="icone-botao" />
-                                    </button>
-                                </Link>
-
-                                <Link to="/telaescrivaninha">
-                                    <button className="btnss">
-                                        <img src="public/icons/escrita.png" alt="" className="icone-botao" />
-                                    </button>
-
-                                </Link>
-                            </div>
-
-                            <Link to="/telausuarioconfigs">
-                                <button className="btnss">
-                                    <img src="./public/images/setting.svg" alt="" className="icone-botao" />
-                                </button>
-
-                            </Link>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     )
 }
-
 
 export default TelaPrincipal

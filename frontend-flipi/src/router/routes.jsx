@@ -13,6 +13,7 @@ import LandingPage from "../pages/LandingPage";
 import TelaLivro from "../pages/TelaLivro";
 import TelaPesquisa from "../pages/TelaPesquisa";
 import LivroParteUm from '../components/LivroParteUm';
+import TelaRecomendacao from "../pages/TelaRecomendacao";
 
 const router = createBrowserRouter([
     // {path: "/", element: <Home />},
@@ -29,7 +30,8 @@ const router = createBrowserRouter([
     {path: "/", element: <LandingPage />},
     {path: "/telalivro/:isbn?", element: <TelaLivro /> },
     {path: "/telapesquisa", element: <TelaPesquisa/>},
-    {path: "/livro/:isbn", element: <LivroParteUm /> }
+    {path: "/livro/:isbn", element: <LivroParteUm /> },
+    {path: "/recomendacoes", element: <TelaRecomendacao />},
 ])
 
 export default router;

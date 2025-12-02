@@ -1,0 +1,157 @@
+/* Container Principal (Fundo Branco) */
+.container-recomendacao {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff;
+}
+
+/* Camadas do Livro (Efeito visual de borda) */
+.capa-fundo-livro-um {
+    height: 90%;
+    width: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #eddbb3; /* Cor da capa dura */
+    border-radius: 10px;
+    box-shadow: 10px 10px 20px rgba(0,0,0,0.2); /* Sombra para dar profundidade */
+}
+
+.capa-fundo-livro-dois {
+    height: 100%;
+    width: 96%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #c69877; /* Lombada */
+    border-radius: 10px;
+}
+
+.capa-fundo-livro-tres {
+    height: 100%;
+    width: 97%;
+    display: flex;
+    align-items: center;
+    background-color: #f8ebce; /* Cor das páginas */
+    border-radius: 10px;
+}
+
+/* Colunas Internas */
+.navbar-container {
+    height: 100%;
+    width: 6%;
+    background-color: #fdfaf3;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.folha-esquerda, .folha-direita {
+    height: 100%;
+    width: 44%;
+    background-color: #fdfaf3; /* Cor do papel */
+    border-color: #f8ebce;
+    border-style: solid;
+    border-width: 0 4px; /* Apenas bordas laterais */
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto; /* Permite rolar se tiver muitos livros */
+}
+
+.vazio-direita {
+    height: 100%;
+    width: 6%;
+    background-color: #fdfaf3;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+.vazio-pagina-direita {
+    height: 10%; /* Espaço no topo da página direita */
+}
+
+/* --- ESTILOS NOVOS PARA O MAP (GRID DE LIVROS) --- */
+
+.cabecalho-pagina {
+    margin-bottom: 20px;
+    text-align: center;
+    color: #5c3a21;
+}
+
+.titulo-secao {
+    font-size: 1.8rem;
+    margin: 0;
+    font-family: 'Georgia', serif;
+}
+
+.subtitulo-secao {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+/* O Grid que organiza os livros */
+.grid-livros-recomendados {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    width: 100%;
+}
+
+/* O Card Individual de cada livro */
+.card-livro-recomendado {
+    width: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 15px;
+    transition: transform 0.2s;
+}
+
+.card-livro-recomendado:hover {
+    transform: scale(1.05); /* Efeito de zoom leve ao passar o mouse */
+}
+
+.btn-livro-capa {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.img-capa {
+    width: 100px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 5px;
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.3);
+}
+
+.capa-placeholder {
+    width: 100px;
+    height: 150px;
+    background-color: #ddd;
+    border-radius: 5px;
+}
+
+.titulo-livro-rec {
+    font-size: 0.85rem;
+    text-align: center;
+    margin-top: 8px;
+    font-weight: bold;
+    color: #3e2723;
+    /* Limita o texto a 2 linhas */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.nota-recomendacao {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 4px;
+}
