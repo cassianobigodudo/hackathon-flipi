@@ -62,12 +62,16 @@ O projeto foi construído utilizando uma arquitetura moderna e escalável:
 
 ### Página Inicial (Recomendações Populares) 
 <img width="2555" height="1275" alt="image" src="https://github.com/user-attachments/assets/2fcf4525-d654-47fe-97ba-98c6c156e4fa" />
+
 ### Página de Pesquisa
 <img width="2557" height="1274" alt="image" src="https://github.com/user-attachments/assets/32ffceae-e6e2-4a69-9c06-662c744f1f7d" />
+
 ### Página do Livro
 <img width="2554" height="1275" alt="image" src="https://github.com/user-attachments/assets/ff48f6ff-a34c-41b6-b87f-09deed867180" />
+
 ### Escrivaninha (Escrever Resenha)
 <img width="2551" height="1272" alt="image" src="https://github.com/user-attachments/assets/359e0536-da7f-4742-8ec5-be180d742b55" />
+
 ### Recomendações Personalizadas
 <img width="2557" height="1279" alt="image" src="https://github.com/user-attachments/assets/427a284b-801a-4705-8cf7-a04b1b6471a9" />
 
