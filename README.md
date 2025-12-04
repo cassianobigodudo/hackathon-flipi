@@ -1,6 +1,7 @@
 # 📚 FliPi - Compartilhe suas leituras, Inspire outros leitores
 
 <img width="2558" height="1279" alt="image" src="https://github.com/user-attachments/assets/75cadcf4-0d7e-4813-a058-965e56642ed7" />
+
 > Uma plataforma social de recomendação de livros baseada em resenhas reais e curadoria comunitária.
 
 ### 👥 O Time (Squad Hackathon)
