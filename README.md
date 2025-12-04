@@ -1,14 +1,16 @@
-# 📚 FliPi - Conectando Leitores, Descobrindo Histórias
+# 📚 FliPi - Compartilhe suas leituras, Inspire outros leitores
+
+<img width="2558" height="1279" alt="image" src="https://github.com/user-attachments/assets/75cadcf4-0d7e-4813-a058-965e56642ed7" />
 
 > Uma plataforma social de recomendação de livros baseada em resenhas reais e curadoria comunitária.
 
 ### 👥 O Time (Squad Hackathon)
-* **Cassiano Calazans Coelho Machado**
-* **José Vitor de Mattos Pinheiro**
-* **Jaime António Cá**
-* **Giovani Razzante**
-* **Theo Pereira do Santos**
-* **Jonathan Zoz**
+* **Cassiano Calazans Coelho Machado** Líder/ Backend/ Documentação
+* **José Vitor de Mattos Pinheiro** Backend
+* **Jaime António Cá** Backend
+* **Giovani Razzante** Designer UI/UX
+* **Theo Pereira do Santos** Designer UI/UX
+* **Jonathan Zoz** Frontend / Backend
 
 ---
 
@@ -26,7 +28,7 @@ O **FliPi** não é apenas um repositório de livros; é uma **rede social de le
 ## 🚀 Funcionalidades Principais
 
 ### 🔓 Acesso Público (Visitante)
-* **Exploração:** Visualização completa do catálogo de livros.
+* **Exploração:** Visualização completa na pagina inicial dos livros mais recomendados.
 * **Prova Social:** Leitura de resenhas e avaliações feitas pela comunidade.
 * **Busca Inteligente:** Filtragem por gênero, autor, editora e título.
 
@@ -36,8 +38,9 @@ O **FliPi** não é apenas um repositório de livros; é uma **rede social de le
     * Escrever, editar e excluir resenhas pessoais.
     * Avaliar livros (Rating de 1 a 5 estrelas).
     * Curtir resenhas de outros usuários (Engajamento).
-* **Curadoria (Diferencial):** Criação de **Listas de Livros Personalizadas** (ex: Favoritos, Meta de Leitura 2024).
+* **Recomendação Especial:** Recomendação especialmente para o usuário baseado em suas resenhas positivas
 * **Expansão:** Cadastro de novos livros via código **ISBN** (popula o banco automaticamente se não existir).
+* **Curadoria** Criação de **Listas de Livros Personalizadas** (ex: Favoritos, Meta de Leitura 2024).
 
 ---
 
@@ -55,14 +58,25 @@ O projeto foi construído utilizando uma arquitetura moderna e escalável:
 
 ## 📸 Screenshots
 
-### Landing Page & Dashboard
-*(Insira o print da nova Landing Page aqui)*
+### Landing Page
+<img width="2558" height="1279" alt="image" src="https://github.com/user-attachments/assets/1612c23b-ad6a-4d17-82a6-1ead2d312174" />
 
-### Página do Livro & Resenhas
-*(Insira o print da página de detalhes do livro aqui)*
 
-### Criação de Listas Personalizadas
-*(Insira o print da feature de listas aqui)*
+### Página Inicial (Recomendações Populares) 
+<img width="2555" height="1275" alt="image" src="https://github.com/user-attachments/assets/2fcf4525-d654-47fe-97ba-98c6c156e4fa" />
+
+### Página de Pesquisa
+<img width="2557" height="1274" alt="image" src="https://github.com/user-attachments/assets/32ffceae-e6e2-4a69-9c06-662c744f1f7d" />
+
+### Página do Livro
+<img width="2554" height="1275" alt="image" src="https://github.com/user-attachments/assets/ff48f6ff-a34c-41b6-b87f-09deed867180" />
+
+### Escrivaninha (Escrever Resenha)
+<img width="2551" height="1272" alt="image" src="https://github.com/user-attachments/assets/359e0536-da7f-4742-8ec5-be180d742b55" />
+
+### Recomendações Personalizadas
+<img width="2557" height="1279" alt="image" src="https://github.com/user-attachments/assets/427a284b-801a-4705-8cf7-a04b1b6471a9" />
+
 
 ---
 
